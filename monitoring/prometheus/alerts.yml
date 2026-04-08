@@ -1,0 +1,92 @@
+groups:
+  - name: spring-web-alerts
+    rules:
+      - alert: SpringWebAppDown
+        expr: up{job="spring-web-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Spring Web app is down"
+          description: "Prometheus cannot scrape spring-web app for at least 1 minute."
+
+      - alert: SpringWebAppFlapping
+        expr: changes(up{job="spring-web-app"}[10m]) > 4
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Spring Web app is restarting frequently"
+          description: "The app availability changed more than 4 times in 10 minutes (possible restart loop)."
+
+      - alert: KafkaDown
+        expr: probe_success{job="blackbox-tcp", instance="kafka:9092"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kafka is down"
+          description: "Blackbox TCP probe to kafka:9092 has failed for at least 1 minute."
+
+      - alert: PostgresDown
+        expr: probe_success{job="blackbox-tcp", instance="postgres:5432"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "Blackbox TCP probe to postgres:5432 has failed for at least 1 minute."
+
+      - alert: GrafanaDown
+        expr: probe_success{job="blackbox-http", instance="http://grafana:3000/api/health"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Grafana is down"
+          description: "Blackbox HTTP probe to Grafana health endpoint has failed for at least 1 minute."
+
+      - alert: OutboxLagHigh
+        expr: outbox_lag > 120
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbox lag is high"
+          description: "outbox_lag is above 120 seconds for at least 2 minutes."
+
+      - alert: FailedNotificationsIncreasing
+        expr: increase(failed_notifications[10m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Failed notifications detected"
+          description: "failed_notifications increased during the last 10 minutes."
+
+      - alert: BranchCommandFailures
+        expr: increase(app_branch_command_total{outcome="failure"}[10m]) > 3
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High branch command failures"
+          description: "More than 3 failed branch commands in the last 10 minutes."
+
+      - alert: OutboxPublishFailures
+        expr: increase(app_outbox_publish_total{outcome="failure"}[10m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbox publish failures detected"
+          description: "At least one outbox publish failure was detected in the last 10 minutes."
+
+      - alert: ConsumerDltEvents
+        expr: increase(app_notification_consumer_total{outcome="dlt"}[10m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Messages sent to DLT"
+          description: "Notification consumer sent at least one message to DLT in the last 10 minutes."
