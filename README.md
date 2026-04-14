@@ -90,6 +90,11 @@ Current endpoint access matrix:
 - Admin role required: `/api/v1/branches/**`
 - Authenticated fallback: any other endpoint
 
+Auth flow additions:
+
+- `POST /api/v1/auth/login` returns access token and sets `REFRESH_TOKEN` cookie (`HttpOnly`, `SameSite=Lax`).
+- `POST /api/v1/auth/refresh` rotates refresh cookie and returns a new access token.
+
 ### API error contract (Problem Details)
 
 The API uses `application/problem+json` style responses for handled errors.

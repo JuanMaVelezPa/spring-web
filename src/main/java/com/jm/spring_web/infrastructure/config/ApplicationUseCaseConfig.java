@@ -10,6 +10,7 @@ import com.jm.spring_web.application.notification.port.OutboxEventRepositoryPort
 import com.jm.spring_web.application.security.port.TokenProviderPort;
 import com.jm.spring_web.application.security.port.UserCredentialsPort;
 import com.jm.spring_web.application.security.usecase.AuthenticateUserUseCase;
+import com.jm.spring_web.application.security.usecase.RefreshTokenUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,5 +47,10 @@ public class ApplicationUseCaseConfig {
     @Bean
     AuthenticateUserUseCase authenticateUserUseCase(UserCredentialsPort userCredentialsPort, TokenProviderPort tokenProviderPort) {
         return new AuthenticateUserUseCase(userCredentialsPort, tokenProviderPort);
+    }
+
+    @Bean
+    RefreshTokenUseCase refreshTokenUseCase(TokenProviderPort tokenProviderPort) {
+        return new RefreshTokenUseCase(tokenProviderPort);
     }
 }

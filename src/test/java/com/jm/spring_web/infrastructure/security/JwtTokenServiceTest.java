@@ -10,32 +10,56 @@ class JwtTokenServiceTest {
 
     @Test
     void shouldIssueAndParseToken() {
-        JwtTokenService service = new JwtTokenService(new JwtProperties("test-secret-test-secret-test-secret-123", 3600));
+        JwtTokenService service = new JwtTokenService(new JwtProperties(
+                "test-secret-test-secret-test-secret-123",
+                3600,
+                7200,
+                "REFRESH_TOKEN"));
 
-        String token = service.issueToken("admin");
+        String token = service.issueAccessToken("admin");
 
-        assertEquals("admin", service.extractSubject(token));
+        assertEquals("admin", service.extractSubjectFromAccessToken(token));
     }
 
     @Test
     void shouldFailWithInvalidToken() {
-        JwtTokenService service = new JwtTokenService(new JwtProperties("test-secret-test-secret-test-secret-123", 3600));
+        JwtTokenService service = new JwtTokenService(new JwtProperties(
+                "test-secret-test-secret-test-secret-123",
+                3600,
+                7200,
+                "REFRESH_TOKEN"));
 
-        assertThrows(RuntimeException.class, () -> service.extractSubject("invalid-token"));
+        assertThrows(RuntimeException.class, () -> service.extractSubjectFromAccessToken("invalid-token"));
     }
 
     @Test
     void shouldFailWhenTokenIsExpired() throws InterruptedException {
-        JwtTokenService service = new JwtTokenService(new JwtProperties("test-secret-test-secret-test-secret-123", 1));
-        String token = service.issueToken("admin");
+        JwtTokenService service = new JwtTokenService(new JwtProperties(
+                "test-secret-test-secret-test-secret-123",
+                1,
+                2,
+                "REFRESH_TOKEN"));
+        String token = service.issueAccessToken("admin");
 
         Thread.sleep(1200);
 
-        assertThrows(RuntimeException.class, () -> service.extractSubject(token));
+        assertThrows(RuntimeException.class, () -> service.extractSubjectFromAccessToken(token));
+    }
+
+    @Test
+    void shouldRejectRefreshTokenWhenParsedAsAccessToken() {
+        JwtTokenService service = new JwtTokenService(new JwtProperties(
+                "test-secret-test-secret-test-secret-123",
+                3600,
+                7200,
+                "REFRESH_TOKEN"));
+        String refreshToken = service.issueRefreshToken("admin");
+
+        assertThrows(RuntimeException.class, () -> service.extractSubjectFromAccessToken(refreshToken));
     }
 
     @Test
     void shouldFailWithWeakSecret() {
-        assertThrows(WeakKeyException.class, () -> new JwtTokenService(new JwtProperties("short-secret", 3600)));
+        assertThrows(WeakKeyException.class, () -> new JwtTokenService(new JwtProperties("short-secret", 3600, 7200, "REFRESH_TOKEN")));
     }
 }

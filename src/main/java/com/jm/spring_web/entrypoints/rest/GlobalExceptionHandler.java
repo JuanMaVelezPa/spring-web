@@ -2,6 +2,7 @@ package com.jm.spring_web.entrypoints.rest;
 
 import com.jm.spring_web.application.common.exception.ConflictException;
 import com.jm.spring_web.application.common.exception.NotFoundException;
+import com.jm.spring_web.application.common.exception.UnauthorizedException;
 import com.jm.spring_web.application.common.exception.UnprocessableEntityException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -45,6 +46,12 @@ public class GlobalExceptionHandler {
     ResponseEntity<ProblemDetail> handleUnprocessable(RuntimeException exception, HttpServletRequest request) {
         log4xx(HttpStatus.UNPROCESSABLE_CONTENT, request, exception.getMessage());
         return build(HttpStatus.UNPROCESSABLE_CONTENT, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    ResponseEntity<ProblemDetail> handleUnauthorized(UnauthorizedException exception, HttpServletRequest request) {
+        log4xx(HttpStatus.UNAUTHORIZED, request, exception.getMessage());
+        return build(HttpStatus.UNAUTHORIZED, exception.getMessage(), request);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class, IllegalArgumentException.class})

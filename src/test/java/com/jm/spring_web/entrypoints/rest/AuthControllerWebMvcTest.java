@@ -2,12 +2,15 @@ package com.jm.spring_web.entrypoints.rest;
 
 import com.jm.spring_web.application.security.model.AuthResult;
 import com.jm.spring_web.application.security.usecase.AuthenticateUserUseCase;
+import com.jm.spring_web.application.security.usecase.RefreshTokenUseCase;
+import com.jm.spring_web.application.common.exception.UnauthorizedException;
 import com.jm.spring_web.application.common.exception.UnprocessableEntityException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,10 +34,13 @@ class AuthControllerWebMvcTest {
 
     @MockitoBean
     private AuthenticateUserUseCase authenticateUserUseCase;
+    @MockitoBean
+    private RefreshTokenUseCase refreshTokenUseCase;
 
     @Test
     void shouldLoginSuccessfullyWithValidPayload() throws Exception {
-        Mockito.when(authenticateUserUseCase.execute(Mockito.any())).thenReturn(new AuthResult("jwt-token"));
+        Mockito.when(authenticateUserUseCase.execute(Mockito.any()))
+                .thenReturn(new AuthResult("jwt-token", "refresh-token"));
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -45,7 +51,9 @@ class AuthControllerWebMvcTest {
                                 }
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("jwt-token"));
+                .andExpect(jsonPath("$.token").value("jwt-token"))
+                .andExpect(jsonPath("$.refreshToken").doesNotExist())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().exists(HttpHeaders.SET_COOKIE));
     }
 
     @Test
@@ -82,5 +90,27 @@ class AuthControllerWebMvcTest {
                                 """))
                 .andExpect(status().is(422))
                 .andExpect(jsonPath("$.detail").value("Invalid credentials"));
+    }
+
+    @Test
+    void shouldRefreshAccessTokenWithValidRefreshCookie() throws Exception {
+        Mockito.when(refreshTokenUseCase.execute(Mockito.any()))
+                .thenReturn(new AuthResult("new-access-token", "new-refresh-token"));
+
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                        .cookie(new jakarta.servlet.http.Cookie("REFRESH_TOKEN", "old-refresh-token")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("new-access-token"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().exists(HttpHeaders.SET_COOKIE));
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenRefreshCookieIsMissing() throws Exception {
+        Mockito.when(refreshTokenUseCase.execute(Mockito.any()))
+                .thenThrow(new UnauthorizedException("Refresh token is required"));
+
+        mockMvc.perform(post("/api/v1/auth/refresh"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.detail").value("Refresh token is required"));
     }
 }

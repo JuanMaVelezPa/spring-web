@@ -21,6 +21,8 @@ public class AuthenticateUserUseCase {
         if (!userCredentialsPort.authenticate(command.username(), command.password())) {
             throw new UnprocessableEntityException("Invalid credentials");
         }
-        return new AuthResult(tokenProviderPort.issueToken(command.username()));
+        return new AuthResult(
+                tokenProviderPort.issueAccessToken(command.username()),
+                tokenProviderPort.issueRefreshToken(command.username()));
     }
 }

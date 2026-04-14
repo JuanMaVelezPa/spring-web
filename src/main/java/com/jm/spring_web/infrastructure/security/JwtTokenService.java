@@ -13,6 +13,9 @@ import java.util.Date;
 
 @Component
 public class JwtTokenService implements TokenProviderPort {
+    private static final String TOKEN_TYPE = "token_type";
+    private static final String ACCESS = "access";
+    private static final String REFRESH = "refresh";
     private final JwtProperties jwtProperties;
     private final SecretKey secretKey;
 
@@ -22,22 +25,46 @@ public class JwtTokenService implements TokenProviderPort {
     }
 
     @Override
-    public String issueToken(String username) {
+    public String issueAccessToken(String username) {
+        return issueToken(username, jwtProperties.expirationSeconds(), ACCESS);
+    }
+
+    @Override
+    public String issueRefreshToken(String username) {
+        return issueToken(username, jwtProperties.refreshExpirationSeconds(), REFRESH);
+    }
+
+    @Override
+    public String extractSubjectFromAccessToken(String token) {
+        return extractSubject(token, ACCESS);
+    }
+
+    @Override
+    public String extractSubjectFromRefreshToken(String token) {
+        return extractSubject(token, REFRESH);
+    }
+
+    private String issueToken(String username, long expirationSeconds, String tokenType) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(username)
+                .claim(TOKEN_TYPE, tokenType)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(jwtProperties.expirationSeconds())))
+                .expiration(Date.from(now.plusSeconds(expirationSeconds)))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String extractSubject(String token) {
+    private String extractSubject(String token, String expectedType) {
         Claims claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+        String tokenType = claims.get(TOKEN_TYPE, String.class);
+        if (!expectedType.equals(tokenType)) {
+            throw new IllegalArgumentException("Invalid token type");
+        }
         return claims.getSubject();
     }
 }

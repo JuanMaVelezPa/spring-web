@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith(BEARER_PREFIX)) {
             String token = header.substring(BEARER_PREFIX.length());
             try {
-                String username = jwtTokenService.extractSubject(token);
+                String username = jwtTokenService.extractSubjectFromAccessToken(token);
                     // Current auth model has one built-in application role.
                     User principal = new User(username, "", List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
