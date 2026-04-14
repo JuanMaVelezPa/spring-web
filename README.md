@@ -83,6 +83,36 @@ Branch creation flow:
 - Metrics via `/actuator/prometheus`
 - Prebuilt Grafana dashboard: `monitoring/grafana/dashboards/spring-web-observability.json`
 
+### API error contract (Problem Details)
+
+The API uses `application/problem+json` style responses for handled errors.
+Typical fields include:
+
+- `type` (error category URI)
+- `title` (HTTP reason phrase)
+- `status` (HTTP status code)
+- `detail` (human-readable message)
+- `instance` (request path)
+- `timestamp`
+- `transactionId` (when available from request correlation)
+- `errors` (validation details, when applicable)
+
+Validation example:
+
+```json
+{
+  "type": "https://api.spring-web/errors/400",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for one or more fields",
+  "instance": "/api/v1/branches",
+  "timestamp": "2026-04-14T16:00:00Z",
+  "errors": [
+    { "field": "name", "message": "name is mandatory" }
+  ]
+}
+```
+
 Custom business metrics include:
 
 - `outbox_lag`
