@@ -35,3 +35,4 @@ monitoring/alertmanager/alertmanager.local.yml
 monitoring/alertmanager/discord-webhook-url
 
 logs/*.log
+backend/logs/

@@ -1,0 +1,24 @@
+<div class="flex min-h-screen flex-col bg-base-200">
+  <header
+    class="navbar min-h-14 flex-wrap gap-x-2 gap-y-2 bg-base-100 px-2 shadow-sm sm:min-h-16 sm:px-4 pt-[env(safe-area-inset-top,0px)]"
+  >
+    <div class="flex min-w-0 flex-1">
+      <a routerLink="/branches" class="btn btn-ghost h-auto min-h-10 max-w-full shrink px-2 text-base font-medium sm:text-lg">
+        <span class="truncate">Branches</span>
+      </a>
+    </div>
+    <div class="ml-auto flex flex-none flex-wrap items-center justify-end gap-1 sm:gap-2">
+      <app-theme-toggle />
+      <button type="button" class="btn btn-outline btn-sm gap-2" [disabled]="loggingOut()" (click)="logout()">
+        @if (loggingOut()) {
+          <span class="loading loading-spinner loading-xs"></span>
+        }
+        Logout
+      </button>
+    </div>
+  </header>
+  <div class="container mx-auto max-w-5xl flex-1 px-3 py-4 sm:px-4">
+    <router-outlet />
+  </div>
+  <app-footer />
+</div>

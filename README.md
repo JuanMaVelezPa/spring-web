@@ -1,189 +1,75 @@
-# Spring Web - Branch Management API
+# Spring Web — Monorepo
 
-Production-style backend project focused on **Clean Architecture**, **reliability patterns**, and **operational maturity**.
+Portfolio **full-stack** project: **Spring Boot** API (`backend/`), **Angular** SPA (`frontend/`), and **observability** (`monitoring/`). HTTP contract is the boundary between Java and TypeScript.
 
-This API manages company branches and demonstrates how to build a small domain with strong engineering practices.
+| Start here | Description |
+|------------|-------------|
+| [backend/README.md](backend/README.md) | API, Docker, security matrix, tests, Gradle |
+| [frontend/README.md](frontend/README.md) | Angular dev server, proxy, UI stack |
+| [docs/README.md](docs/README.md) | **Roadmap** (phased plan) + **Postman** collection |
 
-For the phased backend and frontend plan (API maturity, security, Angular UI), see [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md).
+## Repository layout
 
-## What this project demonstrates
+```text
+backend/           # Spring Boot (Gradle); build output: backend/build/
+frontend/          # Angular SPA
+docs/
+  roadmap/         # Phased plan (overview, backend, frontend)
+  postman/         # Postman collection (shared API contract)
+monitoring/        # Prometheus, Grafana, Alertmanager, …
+docker-compose.yml # Root: separate services (e.g. API `app`, Nginx `web`, Prometheus, Kafka, …)
+```
 
-- Clean Architecture with clear boundaries (`domain`, `application`, `infrastructure`, `entrypoints`)
-- JWT authentication with stateless security
-- Transactional Outbox + Kafka for reliable async delivery
-- Retry, DLT, and idempotent consumer behavior
-- Structured JSON logging with end-to-end `transactionId` traceability
-- Observability stack (Micrometer, Prometheus, Grafana, Alertmanager, Discord)
-- Automated tests (unit, web, integration with Testcontainers)
+## Quick start
 
-## Tech stack
+### Full stack with Docker Compose (quick)
 
-- Java 25, Spring Boot 4
-- PostgreSQL, Flyway
-- Spring Security + JWT
-- Apache Kafka
-- Micrometer + Actuator + Prometheus
-- Grafana + Alertmanager + Blackbox Exporter
-- Docker Compose
-- JUnit 5, Mockito, MockMvc, Testcontainers
-
-## Quick start (local)
+From the **repository root** (where `docker-compose.yml` lives):
 
 ```bash
 cp .env.example .env
-cp monitoring/alertmanager/alertmanager.local.yml.example monitoring/alertmanager/alertmanager.local.yml
-cp monitoring/alertmanager/discord-webhook-url.example monitoring/alertmanager/discord-webhook-url
+# Edit .env: JWT_SECRET and APP_PASSWORD are required (see .env.example).
+# Optional (local Alertmanager): see [backend/README.md](backend/README.md).
+
 docker compose up -d --build
 ```
 
-Then set your real Discord webhook URL in `monitoring/alertmanager/discord-webhook-url` (single line).
+- **`--build`** rebuilds images (`app`, `web`, …). If you did not change code/images, `docker compose up -d` is enough.
+- **Ports (host):** SPA (Nginx) **http://localhost:8080** · API (Spring) **http://localhost:8081** (Postman, Swagger, Actuator direct). The SPA still calls **`/api` on :8080**; Nginx forwards those requests to `app` so the browser stays same-origin (no extra CORS setup).
+- **Grafana:** http://localhost:3000 · **Prometheus:** http://localhost:9090  
+- Stop: `docker compose down` · Logs: `docker compose logs -f web app`
 
-Main URLs:
+### Login en la UI (valores por defecto)
 
-- API: `http://localhost:8080`
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- Prometheus: `http://localhost:9090`
-- Alertmanager: `http://localhost:9093`
-- Grafana: `http://localhost:3000` (`admin` / `admin`)
+Tras `cp .env.example .env`, la API crea el usuario de aplicación definido en `.env`. **Por defecto** (según `.env.example`):
 
-## Production-like run
+| | |
+|--|--|
+| **Usuario** | `admin` |
+| **Contraseña** | `Admin_ChangeMe_2026!` |
 
-```bash
-cp .env.prod.example .env.prod
-docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-```
+Si cambiaste `APP_USER` o `APP_PASSWORD` en tu `.env`, usa esos valores en el formulario de login.
 
-With `prod` profile:
+**Si el login responde `422 Unprocessable Content`:** el cuerpo suele ser *Invalid credentials* — la API está rechazando usuario/contraseña. Comprueba que en `.env` no haya comillas alrededor de `APP_PASSWORD`, que no queden espacios raros, y que **reinicies el contenedor `app`** (o el proceso Spring) tras cambiar la contraseña: el usuario en memoria se crea al arranque con el valor entonces vigente.
 
-- Swagger/OpenAPI disabled
-- Actuator exposure reduced to `health` and `info`
-- Health details hidden
+Variables, Alertmanager, and production-like compose: [backend/README.md](backend/README.md).
 
-## Architecture overview
+### Without Docker
 
-| Layer | Responsibility |
-|---|---|
-| `domain` | Business entities and core rules |
-| `application` | Use cases, ports, application logic |
-| `infrastructure` | DB, Kafka, security, logging, observability adapters |
-| `entrypoints` | REST controllers and API contracts |
+1. Run the API on port **8080**, then [frontend/README.md](frontend/README.md) (`npm start` → http://localhost:4200/ with `/api` proxy).
 
-Branch creation flow:
+## Planning & standards
 
-1. Controller calls use case
-2. Use case saves `branch` + `outbox_event` in one transaction
-3. Outbox relay publishes to Kafka and marks event `PROCESSED` only after ACK
-4. Consumer processes event with idempotency (`processed_event` table)
-
-## Security, logging, and observability
-
-- Stateless JWT for protected endpoints
-- `X-Correlation-Id` propagated as `transactionId` across HTTP -> app -> Kafka -> consumer
-- JSON logs for easier debugging and filtering
-- Metrics via `/actuator/prometheus`
-- Prebuilt Grafana dashboard: `monitoring/grafana/dashboards/spring-web-observability.json`
-
-### API error contract (Problem Details)
-
-The API uses `application/problem+json` style responses for handled errors.
-Typical fields include:
-
-- `type` (error category URI)
-- `title` (HTTP reason phrase)
-- `status` (HTTP status code)
-- `detail` (human-readable message)
-- `instance` (request path)
-- `timestamp`
-- `transactionId` (when available from request correlation)
-- `errors` (validation details, when applicable)
-
-Validation example:
-
-```json
-{
-  "type": "https://api.spring-web/errors/400",
-  "title": "Bad Request",
-  "status": 400,
-  "detail": "Validation failed for one or more fields",
-  "instance": "/api/v1/branches",
-  "timestamp": "2026-04-14T16:00:00Z",
-  "errors": [
-    { "field": "name", "message": "name is mandatory" }
-  ]
-}
-```
-
-Custom business metrics include:
-
-- `outbox_lag`
-- `failed_notifications`
-- `app_auth_login_total`
-- `app_branch_command_total`
-- `app_use_case_duration`
-- `app_outbox_publish_total`
-- `app_notification_consumer_total`
-
-## Alerting (Discord)
-
-Alert pipeline:
-
-1. Prometheus evaluates rules (`monitoring/prometheus/alerts.yml`)
-2. Alertmanager routes alerts (`monitoring/alertmanager/alertmanager.local.yml`)
-3. Discord notification is sent using `webhook_url_file`
-
-Configured alerts:
-
-- `SpringWebAppDown`
-- `SpringWebAppFlapping`
-- `KafkaDown`
-- `PostgresDown`
-- `GrafanaDown`
-- `OutboxLagHigh`
-- `FailedNotificationsIncreasing`
-- `BranchCommandFailures`
-- `OutboxPublishFailures`
-- `ConsumerDltEvents`
-
-## Testing
-
-Run full test suite:
-
-```bash
-./gradlew clean test
-```
-
-Optional manual Discord alert test:
-
-```bash
-RUN_ALERTMANAGER_TEST=true ./gradlew test --tests AlertmanagerDiscordIntegrationTest
-```
-
-## Project structure
-
-```text
-src/main/java/com/jm/spring_web/
-  domain/
-  application/
-  infrastructure/
-  entrypoints/
-monitoring/
-  prometheus/
-  alertmanager/
-  grafana/
-  blackbox/
-postman/
-```
+Phased delivery, Git workflow, and decided standards: [docs/roadmap/overview.md](docs/roadmap/overview.md).
 
 ## Author
 
-**JuanMa**  
-Backend Java Developer
+**JuanMa** — Backend Java Developer
 
-- GitHub: `https://github.com/JuanMaVelezPa`
-- LinkedIn: `https://www.linkedin.com/in/juanmavelezdev/`
-- Email: `juanmavelezpa@gmail.com`
+- GitHub: https://github.com/JuanMaVelezPa
+- LinkedIn: https://www.linkedin.com/in/juanmavelezdev/
+- Email: juanmavelezpa@gmail.com
 
 ## Note for recruiters
 
-This project intentionally keeps business scope small and engineering quality high.  
-It is designed to demonstrate architecture decisions, reliability patterns, testing depth, and production-oriented observability in a compact portfolio project.
+Small business scope, high engineering signal: architecture, reliability patterns, tests, and production-oriented observability in one repo.

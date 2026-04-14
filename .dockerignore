@@ -1,4 +1,11 @@
-target
 .git
+.github
+.cursor
 .idea
-.vscode
+**/.gradle
+**/build
+**/node_modules
+frontend/dist
+**/*.log
+logs
+backend/logs
