@@ -117,13 +117,13 @@ Configured alerts:
 Run full test suite:
 
 ```bash
-./mvnw clean test
+./gradlew clean test
 ```
 
 Optional manual Discord alert test:
 
 ```bash
-RUN_ALERTMANAGER_TEST=true ./mvnw -Dtest=AlertmanagerDiscordIntegrationTest test
+RUN_ALERTMANAGER_TEST=true ./gradlew test --tests AlertmanagerDiscordIntegrationTest
 ```
 
 ## Project structure

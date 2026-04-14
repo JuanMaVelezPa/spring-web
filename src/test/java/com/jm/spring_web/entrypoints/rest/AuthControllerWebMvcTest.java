@@ -75,7 +75,7 @@ class AuthControllerWebMvcTest {
                                   "password":"wrong"
                                 }
                                 """))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.message").value("Invalid credentials"));
     }
 }
