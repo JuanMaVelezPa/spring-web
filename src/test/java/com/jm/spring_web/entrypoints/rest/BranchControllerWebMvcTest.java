@@ -1,6 +1,7 @@
 package com.jm.spring_web.entrypoints.rest;
 
 import com.jm.spring_web.application.branch.model.BranchResult;
+import com.jm.spring_web.application.common.pagination.PageResult;
 import com.jm.spring_web.application.branch.usecase.CreateBranchUseCase;
 import com.jm.spring_web.application.branch.usecase.DeactivateBranchUseCase;
 import com.jm.spring_web.application.branch.usecase.GetBranchUseCase;
@@ -65,21 +66,35 @@ class BranchControllerWebMvcTest {
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
-    void shouldReturnListWhenAuthenticated() throws Exception {
-        Mockito.when(listBranchesUseCase.execute()).thenReturn(List.of(
-                new BranchResult(
+    void shouldReturnPagedListWhenAuthenticated() throws Exception {
+        Mockito.when(listBranchesUseCase.execute(0, 20)).thenReturn(new PageResult<>(
+                List.of(new BranchResult(
                         UUID.randomUUID(),
                         "BR001",
                         "Main",
                         "Madrid",
                         true,
                         LocalDateTime.now(),
-                        LocalDateTime.now())
-        ));
+                        LocalDateTime.now())),
+                1,
+                0,
+                20,
+                1));
 
         mockMvc.perform(get("/api/v1/branches"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].code").value("BR001"));
+                .andExpect(jsonPath("$.content[0].code").value("BR001"))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.totalPages").value(1));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    void shouldReturnBadRequestWhenPageSizeExceedsMax() throws Exception {
+        mockMvc.perform(get("/api/v1/branches").param("size", "101"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

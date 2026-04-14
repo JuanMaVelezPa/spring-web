@@ -1,6 +1,6 @@
 package com.jm.spring_web.application.branch.port;
 
-import java.util.List;
+import com.jm.spring_web.application.common.pagination.PageSlice;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,5 +13,5 @@ public interface BranchRepositoryPort {
 
     Optional<Branch> findById(UUID id);
 
-    List<Branch> findAll();
+    PageSlice<Branch> findAll(int page, int pageSize);
 }

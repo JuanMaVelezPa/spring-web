@@ -2,8 +2,10 @@ package com.jm.spring_web.application.branch.usecase;
 
 import com.jm.spring_web.application.branch.model.BranchResult;
 import com.jm.spring_web.application.branch.port.BranchRepositoryPort;
+import com.jm.spring_web.application.common.pagination.PageResult;
+import com.jm.spring_web.application.common.pagination.PageSlice;
+import com.jm.spring_web.domain.branch.Branch;
 
-import java.util.List;
 import java.util.Objects;
 
 public class ListBranchesUseCase {
@@ -13,10 +15,9 @@ public class ListBranchesUseCase {
         this.branchRepositoryPort = Objects.requireNonNull(branchRepositoryPort);
     }
 
-    public List<BranchResult> execute() {
-        return branchRepositoryPort.findAll()
-                .stream()
-                .map(BranchMapper::toResult)
-                .toList();
+    public PageResult<BranchResult> execute(int page, int size) {
+        PageSlice<Branch> slice = branchRepositoryPort.findAll(page, size);
+        var content = slice.content().stream().map(BranchMapper::toResult).toList();
+        return PageResult.of(content, slice.totalElements(), page, size);
     }
 }

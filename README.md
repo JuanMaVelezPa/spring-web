@@ -94,6 +94,34 @@ Auth flow additions:
 
 - `POST /api/v1/auth/login` returns access token and sets `REFRESH_TOKEN` cookie (`HttpOnly`, `SameSite=Lax`).
 - `POST /api/v1/auth/refresh` rotates refresh cookie and returns a new access token.
+- `POST /api/v1/auth/logout` returns `204 No Content` and clears the refresh cookie (`Max-Age=0`); discard the access token on the client.
+
+Branches list pagination:
+
+- Generic pagination utility is reusable across modules via `PageSlice<T>`, `PageResult<T>`, `PagedResponse<T>`, `PageMapper`, and `PageRequestParams` (validated query binding for `page` / `size`).
+- `GET /api/v1/branches?page=0&size=20` returns a page object: `content` (array of branches), `totalElements`, `page`, `size`, `totalPages`. Defaults: `page=0`, `size=20`; `size` is capped at `100`.
+
+Paged response example:
+
+```json
+{
+  "content": [
+    {
+      "id": "8df13cf8-53df-4a6b-8231-8dfeb6f9f11e",
+      "code": "BR001",
+      "name": "Main",
+      "city": "Madrid",
+      "isActive": true,
+      "createdAt": "2026-04-14T19:40:00",
+      "updatedAt": "2026-04-14T19:40:00"
+    }
+  ],
+  "totalElements": 1,
+  "page": 0,
+  "size": 20,
+  "totalPages": 1
+}
+```
 
 ### API error contract (Problem Details)
 

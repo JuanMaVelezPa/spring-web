@@ -1,10 +1,10 @@
 package com.jm.spring_web.entrypoints.rest;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,12 +25,17 @@ import com.jm.spring_web.application.branch.usecase.ListBranchesUseCase;
 import com.jm.spring_web.application.branch.usecase.UpdateBranchUseCase;
 import com.jm.spring_web.entrypoints.rest.dto.BranchResponse;
 import com.jm.spring_web.entrypoints.rest.dto.CreateBranchRequest;
+import com.jm.spring_web.entrypoints.rest.dto.PageRequestParams;
+import com.jm.spring_web.entrypoints.rest.dto.PagedResponse;
 import com.jm.spring_web.entrypoints.rest.dto.UpdateBranchRequest;
+import com.jm.spring_web.entrypoints.rest.mapper.PageMapper;
 import com.jm.spring_web.infrastructure.observability.AppMetrics;
 import io.micrometer.core.instrument.Timer;
 
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/branches")
 public class BranchController {
@@ -70,8 +75,12 @@ public class BranchController {
     }
 
     @GetMapping
-    public List<BranchResponse> list() {
-        return executeMeasured("list", () -> listBranchesUseCase.execute().stream().map(this::toResponse).toList());
+    public PagedResponse<BranchResponse> list(@Valid @ParameterObject PageRequestParams pagination) {
+        return executeMeasured(
+                "list",
+                () -> PageMapper.toPagedResponse(
+                        listBranchesUseCase.execute(pagination.getPage(), pagination.getSize()),
+                        this::toResponse));
     }
 
     @PutMapping("/{id}")

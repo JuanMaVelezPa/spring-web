@@ -1,10 +1,12 @@
 package com.jm.spring_web.infrastructure.persistence;
 
 import com.jm.spring_web.application.branch.port.BranchRepositoryPort;
+import com.jm.spring_web.application.common.pagination.PageSlice;
 import com.jm.spring_web.domain.branch.Branch;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,8 +35,11 @@ public class BranchRepositoryAdapter implements BranchRepositoryPort {
     }
 
     @Override
-    public List<Branch> findAll() {
-        return repository.findAll().stream().map(this::toDomain).toList();
+    public PageSlice<Branch> findAll(int page, int pageSize) {
+        Page<BranchJpaEntity> result = repository.findAll(PageRequest.of(page, pageSize));
+        return new PageSlice<>(
+                result.getContent().stream().map(this::toDomain).toList(),
+                result.getTotalElements());
     }
 
     private BranchJpaEntity toEntity(Branch branch) {
