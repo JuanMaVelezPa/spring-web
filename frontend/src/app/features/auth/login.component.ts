@@ -1,0 +1,62 @@
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize, map } from 'rxjs';
+import { AuthService } from '../../core/auth/auth.service';
+import { problemDetailMessage } from '../../core/util/http-error';
+import { AppFooterComponent } from '../../shared/footer/app-footer.component';
+import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
+import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-state.component';
+import { ThemeToggleComponent } from '../../shared/ui/theme-toggle/theme-toggle.component';
+
+@Component({
+  selector: 'app-login',
+  imports: [
+    ReactiveFormsModule,
+    AppFooterComponent,
+    InlineAlertComponent,
+    LoadingStateComponent,
+    ThemeToggleComponent,
+  ],
+  templateUrl: './login.component.html',
+})
+export class LoginComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  readonly error = signal<string | null>(null);
+  readonly submitting = signal(false);
+
+  readonly sessionNotice = toSignal(
+    this.route.queryParamMap.pipe(
+      map((p): string | null =>
+        p.get('session') === 'expired' ? 'Your session expired. Please sign in again.' : null,
+      ),
+    ),
+    { initialValue: null as string | null },
+  );
+
+  readonly form = this.fb.nonNullable.group({
+    username: ['', Validators.required],
+    password: ['', Validators.required],
+  });
+
+  submit(): void {
+    if (this.form.invalid) {
+      return;
+    }
+    this.error.set(null);
+    this.submitting.set(true);
+    const { username, password } = this.form.getRawValue();
+    this.auth
+      .login(username, password)
+      .pipe(finalize(() => this.submitting.set(false)))
+      .subscribe({
+        next: () => void this.router.navigateByUrl('/branches'),
+        error: (err) => this.error.set(problemDetailMessage(err)),
+      });
+  }
+}

@@ -1,0 +1,39 @@
+<div
+  class="flex flex-col gap-3 rounded-lg border border-base-300/80 bg-base-100/50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+>
+  <p class="text-center text-sm text-base-content/70 sm:text-left">{{ summary() }}</p>
+  <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
+    <label class="flex items-center gap-2 text-xs text-base-content/60">
+      <span>Per page</span>
+      <select
+        class="select select-bordered select-xs max-w-[4.5rem]"
+        [value]="pageSize()"
+        (change)="onSizeChange($event)"
+      >
+        @for (opt of sizeOptions(); track opt) {
+          <option [value]="opt">{{ opt }}</option>
+        }
+      </select>
+    </label>
+    <div class="join border border-base-300 shadow-sm">
+      <button
+        type="button"
+        class="btn btn-sm join-item gap-1 px-3"
+        [disabled]="!canPrev()"
+        (click)="prev()"
+      >
+        <span aria-hidden="true">←</span>
+        Prev
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm join-item gap-1 px-3"
+        [disabled]="!canNext()"
+        (click)="next()"
+      >
+        Next
+        <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+</div>
