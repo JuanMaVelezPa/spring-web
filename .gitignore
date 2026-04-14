@@ -33,3 +33,5 @@ build/
 .env.prod
 monitoring/alertmanager/alertmanager.local.yml
 monitoring/alertmanager/discord-webhook-url
+
+logs/*.log

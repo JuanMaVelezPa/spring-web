@@ -58,7 +58,12 @@ class AuthControllerWebMvcTest {
                                   "password":""
                                 }
                                 """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.detail").value("Validation failed for one or more fields"))
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors[0].field").exists())
+                .andExpect(jsonPath("$.errors[0].message").exists());
         verify(authenticateUserUseCase, never()).execute(Mockito.any());
     }
 
