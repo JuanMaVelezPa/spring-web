@@ -4,6 +4,8 @@ Production-style backend project focused on **Clean Architecture**, **reliabilit
 
 This API manages company branches and demonstrates how to build a small domain with strong engineering practices.
 
+For the phased backend and frontend plan (API maturity, security, Angular UI), see [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md).
+
 ## What this project demonstrates
 
 - Clean Architecture with clear boundaries (`domain`, `application`, `infrastructure`, `entrypoints`)
