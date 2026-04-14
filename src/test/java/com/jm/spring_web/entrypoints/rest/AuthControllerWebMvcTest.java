@@ -76,6 +76,6 @@ class AuthControllerWebMvcTest {
                                 }
                                 """))
                 .andExpect(status().is(422))
-                .andExpect(jsonPath("$.message").value("Invalid credentials"));
+                .andExpect(jsonPath("$.detail").value("Invalid credentials"));
     }
 }
