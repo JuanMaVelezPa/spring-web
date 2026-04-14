@@ -83,6 +83,13 @@ Branch creation flow:
 - Metrics via `/actuator/prometheus`
 - Prebuilt Grafana dashboard: `monitoring/grafana/dashboards/spring-web-observability.json`
 
+Current endpoint access matrix:
+
+- Public: `/api/v1/auth/**`, `/swagger-ui/**`, `/v3/api-docs/**`, `/actuator/health`, `/actuator/info`
+- Public when enabled: `/actuator/metrics/**`, `/actuator/prometheus`
+- Admin role required: `/api/v1/branches/**`
+- Authenticated fallback: any other endpoint
+
 ### API error contract (Problem Details)
 
 The API uses `application/problem+json` style responses for handled errors.

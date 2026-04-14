@@ -49,7 +49,18 @@ class BranchControllerWebMvcTest {
     @Test
     void shouldRejectUnauthorizedRequestForProtectedEndpoint() throws Exception {
         mockMvc.perform(get("/api/v1/branches"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title").value("Unauthorized"))
+                .andExpect(jsonPath("$.detail").value("Authentication is required to access this resource"));
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    void shouldReturnForbiddenWhenRoleIsInsufficient() throws Exception {
+        mockMvc.perform(get("/api/v1/branches"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.title").value("Forbidden"))
+                .andExpect(jsonPath("$.detail").value("You do not have permission to access this resource"));
     }
 
     @Test

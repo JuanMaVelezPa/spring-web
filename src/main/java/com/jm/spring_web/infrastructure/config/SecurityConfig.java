@@ -2,6 +2,9 @@ package com.jm.spring_web.infrastructure.config;
 
 import com.jm.spring_web.infrastructure.security.JwtAuthenticationFilter;
 import com.jm.spring_web.infrastructure.security.JwtProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,13 +15,22 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.io.IOException;
+import java.net.URI;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -28,11 +40,17 @@ public class SecurityConfig {
     private boolean actuatorPublic;
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            ObjectMapper objectMapper)
             throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(problemAuthEntryPoint(objectMapper))
+                        .accessDeniedHandler(problemAccessDeniedHandler(objectMapper)))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(
                             "/api/v1/auth/**",
@@ -46,11 +64,34 @@ public class SecurityConfig {
                         auth.requestMatchers("/actuator/metrics/**", "/actuator/prometheus").permitAll();
                     }
 
+                    auth.requestMatchers("/api/v1/branches/**").hasRole("ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    AuthenticationEntryPoint problemAuthEntryPoint(ObjectMapper objectMapper) {
+        return (request, response, ex) -> writeProblemDetail(
+                response,
+                request,
+                HttpServletResponse.SC_UNAUTHORIZED,
+                "Unauthorized",
+                "Authentication is required to access this resource",
+                objectMapper);
+    }
+
+    @Bean
+    AccessDeniedHandler problemAccessDeniedHandler(ObjectMapper objectMapper) {
+        return (request, response, ex) -> writeProblemDetail(
+                response,
+                request,
+                HttpServletResponse.SC_FORBIDDEN,
+                "Forbidden",
+                "You do not have permission to access this resource",
+                objectMapper);
     }
 
     @Bean
@@ -81,5 +122,24 @@ public class SecurityConfig {
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    private void writeProblemDetail(
+            HttpServletResponse response,
+            HttpServletRequest request,
+            int status,
+            String title,
+            String detail,
+            ObjectMapper objectMapper) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/problem+json");
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("type", URI.create("https://api.spring-web/errors/" + status).toString());
+        body.put("title", title);
+        body.put("status", status);
+        body.put("detail", detail);
+        body.put("instance", request.getRequestURI());
+        body.put("timestamp", Instant.now());
+        objectMapper.writeValue(response.getOutputStream(), body);
     }
 }
