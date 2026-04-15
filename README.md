@@ -6,7 +6,7 @@ Portfolio **full-stack** project: **Spring Boot** API (`backend/`), **Angular** 
 |------------|-------------|
 | [backend/README.md](backend/README.md) | API, Docker, security matrix, tests, Gradle |
 | [frontend/README.md](frontend/README.md) | Angular dev server, proxy, UI stack |
-| [docs/README.md](docs/README.md) | **Roadmap** (phased plan) + **Postman** collection |
+| [docs/README.md](docs/README.md) | **Roadmap** (phased plan) + **Postman** + [security notes](docs/security.md) |
 
 ## Repository layout
 
@@ -60,7 +60,8 @@ Variables, Alertmanager, and production-like compose: [backend/README.md](backen
 
 ## Planning & standards
 
-Phased delivery, Git workflow, and decided standards: [docs/roadmap/overview.md](docs/roadmap/overview.md).
+Phased delivery, Git workflow, and decided standards: [docs/roadmap/overview.md](docs/roadmap/overview.md).  
+What is done vs next: [docs/roadmap/status.md](docs/roadmap/status.md).
 
 ## Author
 

@@ -2,11 +2,12 @@ import { Injectable, computed, signal } from '@angular/core';
 import { UserPreferencesService } from '../preferences/user-preferences.service';
 
 export type AppLocale = 'en' | 'es';
-type TranslationKey = keyof typeof dictionary.en;
+export type TranslationKey = keyof typeof dictionary.en;
 
 const dictionary = {
   en: {
     appTitle: 'Branches',
+    browserTabBrand: 'Spring Web',
     logout: 'Logout',
     loginTitle: 'Sign in',
     sessionTitle: 'Session',
@@ -25,6 +26,7 @@ const dictionary = {
     name: 'Name',
     city: 'City',
     active: 'Active',
+    branchInactive: 'Inactive',
     yes: 'Yes',
     no: 'No',
     back: 'Back',
@@ -43,13 +45,39 @@ const dictionary = {
     languageSpanish: 'Spanish',
     themeToLight: 'Light theme',
     themeToDark: 'Dark theme',
+    settings: 'Settings',
+    appearance: 'Appearance',
+    themeLight: 'Light',
+    themeDark: 'Dark',
     footerPortfolio: 'Spring portfolio',
+    footerAuthor: 'by JuanMaVelezPa',
     footerContact: 'Contact links',
     routeError: 'Unexpected navigation error. Please retry.',
     sessionExpiredToast: 'Session expired. Please sign in again.',
+    branchDetailTitle: 'Branch details',
+    loadingBranch: 'Loading branch…',
+    branchLoadFailed: 'Could not load branch',
+    branchNotFound: 'Branch not found',
+    editBranch: 'Edit',
+    editBranchTitle: 'Edit branch',
+    codeReadOnlyHint: 'Code cannot be changed after creation.',
+    saveChanges: 'Save changes',
+    updateFailed: 'Could not update branch',
+    savingChanges: 'Saving…',
+    deactivate: 'Deactivate',
+    deactivateModalTitle: 'Deactivate branch?',
+    deactivateConfirm: 'This branch will be marked inactive. You can still view it in the list.',
+    cancel: 'Cancel',
+    deactivateFailed: 'Could not deactivate branch',
+    createdAtLabel: 'Created',
+    updatedAtLabel: 'Updated',
+    tableSortAriaInactive: '{label}, not sorted. Activate to sort ascending.',
+    tableSortAriaActiveAsc: '{label}, sorted ascending.',
+    tableSortAriaActiveDesc: '{label}, sorted descending.',
   },
   es: {
     appTitle: 'Sucursales',
+    browserTabBrand: 'Spring Web',
     logout: 'Cerrar sesión',
     loginTitle: 'Iniciar sesión',
     sessionTitle: 'Sesión',
@@ -68,6 +96,7 @@ const dictionary = {
     name: 'Nombre',
     city: 'Ciudad',
     active: 'Activa',
+    branchInactive: 'Inactiva',
     yes: 'Sí',
     no: 'No',
     back: 'Volver',
@@ -86,12 +115,42 @@ const dictionary = {
     languageSpanish: 'Español',
     themeToLight: 'Tema claro',
     themeToDark: 'Tema oscuro',
+    settings: 'Ajustes',
+    appearance: 'Apariencia',
+    themeLight: 'Claro',
+    themeDark: 'Oscuro',
     footerPortfolio: 'Portafolio Spring',
+    footerAuthor: 'by JuanMaVelezPa',
     footerContact: 'Enlaces de contacto',
     routeError: 'Error de navegación inesperado. Inténtalo de nuevo.',
     sessionExpiredToast: 'La sesión expiró. Inicia sesión de nuevo.',
+    branchDetailTitle: 'Detalle de sucursal',
+    loadingBranch: 'Cargando sucursal…',
+    branchLoadFailed: 'No se pudo cargar la sucursal',
+    branchNotFound: 'Sucursal no encontrada',
+    editBranch: 'Editar',
+    editBranchTitle: 'Editar sucursal',
+    codeReadOnlyHint: 'El código no se puede cambiar tras crearla.',
+    saveChanges: 'Guardar cambios',
+    updateFailed: 'No se pudo actualizar la sucursal',
+    savingChanges: 'Guardando…',
+    deactivate: 'Desactivar',
+    deactivateModalTitle: '¿Desactivar sucursal?',
+    deactivateConfirm: 'La sucursal quedará marcada como inactiva. Seguirá visible en el listado.',
+    cancel: 'Cancelar',
+    deactivateFailed: 'No se pudo desactivar la sucursal',
+    createdAtLabel: 'Creada',
+    updatedAtLabel: 'Actualizada',
+    tableSortAriaInactive: '{label}, sin ordenar. Activa para orden ascendente.',
+    tableSortAriaActiveAsc: '{label}, orden ascendente.',
+    tableSortAriaActiveDesc: '{label}, orden descendente.',
   },
 } as const;
+
+/** Route `data.titleKey` guard — avoids passing arbitrary strings into {@link I18nService#t}. */
+export function isTranslationKey(value: unknown): value is TranslationKey {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(dictionary.en, value);
+}
 
 @Injectable({ providedIn: 'root' })
 export class I18nService {
@@ -122,8 +181,10 @@ export class I18nService {
     if (!vars) {
       return text;
     }
-    for (const [name, value] of Object.entries(vars)) {
-      text = text.replace(`{${name}}`, String(value));
+    // Longer keys first so `{page}` never partial-matches inside `{pages}`; replaceAll for every occurrence.
+    const entries = Object.entries(vars).sort((a, b) => b[0].length - a[0].length);
+    for (const [name, value] of entries) {
+      text = text.replaceAll(`{${name}}`, String(value));
     }
     return text;
   }

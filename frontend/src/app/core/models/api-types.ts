@@ -1,3 +1,5 @@
+import type { components } from './openapi.generated';
+
 export interface ProblemDetail {
   type?: string;
   title?: string;
@@ -6,15 +8,16 @@ export interface ProblemDetail {
   instance?: string;
 }
 
-export interface Branch {
-  id: string;
-  code: string;
-  name: string;
-  city: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+type OpenApiBranch = components['schemas']['BranchResponse'];
+export type Branch = {
+  id: NonNullable<OpenApiBranch['id']>;
+  code: NonNullable<OpenApiBranch['code']>;
+  name: NonNullable<OpenApiBranch['name']>;
+  city: NonNullable<OpenApiBranch['city']>;
+  isActive: NonNullable<OpenApiBranch['isActive']>;
+  createdAt: NonNullable<OpenApiBranch['createdAt']>;
+  updatedAt: NonNullable<OpenApiBranch['updatedAt']>;
+};
 
 export interface PagedResponse<T> {
   content: T[];
@@ -24,8 +27,13 @@ export interface PagedResponse<T> {
   totalPages: number;
 }
 
-export interface CreateBranchPayload {
-  code: string;
-  name: string;
-  city: string;
-}
+export type CreateBranchPayload = components['schemas']['CreateBranchRequest'];
+
+export type UpdateBranchPayload = components['schemas']['UpdateBranchRequest'];
+
+type OpenApiLoginResponse = components['schemas']['LoginResponse'];
+export type LoginResponse = {
+  token: NonNullable<OpenApiLoginResponse['token']>;
+};
+
+export type LoginRequest = components['schemas']['LoginRequest'];

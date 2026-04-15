@@ -12,6 +12,12 @@ public class PageRequestParams {
     @Max(100)
     private int size = 20;
 
+    /**
+     * Optional sort for list endpoints: {@code property,asc} or {@code property,desc}. Allowed fields are
+     * defined per resource (see that resource's {@link com.jm.spring_web.application.common.pagination.SortPolicy}).
+     */
+    private String sort;
+
     public int getPage() {
         return page;
     }
@@ -26,5 +32,13 @@ public class PageRequestParams {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
     }
 }

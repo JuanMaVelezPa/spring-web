@@ -12,12 +12,19 @@ All implementation, code comments, commit messages, and documentation should be 
 - Clean Architecture: preserve boundaries between domain, application, infrastructure, and entrypoints.
 - Best Practices: tests, observability, security, clear docs, and reproducible environments.
 
-## 2) Scope Strategy
+## 2) Scope Strategy (numbered milestones)
 
-- Step 1: complete Backend Phase 1.
-- Step 2: complete Backend Phase 2.
-- Step 3: build a simple but polished Frontend (Angular latest + Signals + Tailwind + DaisyUI).
-- Step 4: connect Frontend to stable backend contracts.
+Use **one clear sequence** everywhere (see [status.md](status.md)):
+
+| Order | Code | Meaning |
+|-------|------|---------|
+| 1 | **B1** | Backend “Phase 1” in [backend.md](backend.md) — API maturity |
+| 2 | **B2** | Backend “Phase 2” — security & operations |
+| 3 | **F1** | Frontend **first slice** — login + branch list + create (+ prefs, tests, OpenAPI typings) |
+| 4 | **F2** | Frontend **second slice** — branch detail + update + deactivate in the UI |
+| 5 | **H1** | Frontend **hardening** — refresh interceptor, Nginx CSP / security headers |
+
+**After H1:** stricter CSP/TLS policies or new product milestones — add rows to [status.md](status.md) when scope grows.
 
 This sequencing reduces risk and prevents UI work from masking API design issues.
 
@@ -64,10 +71,8 @@ spring-web/
 - Work in small vertical slices.
 - One feature = code + tests + docs + verification.
 - Avoid large "big bang" merges.
-- Suggested branch naming:
-  - `feat/backend-phase1-*`
-  - `feat/backend-phase2-*`
-  - `feat/frontend-*`
+- Suggested branch naming (align with **B1 / B2 / F1 / F2**):
+  - `feat/b1-*`, `feat/b2-*`, `feat/f1-*`, `feat/f2-*` (or legacy `feat/backend-phase1-*`, `feat/frontend-*`)
 
 ---
 
@@ -87,15 +92,12 @@ spring-web/
 
 ## 9) Immediate Next Step
 
-**Current focus:** close **Frontend first slice** gaps (tests + E2E), then **second slice** (branch detail / update / deactivate) as needed.
+**B1, B2, F1, F2, and H1** are complete for the current branch UI + hardening slice. Live checklist: [status.md](status.md).
 
-Live checklist: [status.md](status.md).
+Suggested **optional** next work (pick by learning goal):
 
-Suggested next tasks:
-
-1. Add **frontend unit tests** for auth/preferences utilities and critical services.
-2. Add **one E2E smoke** (Playwright): login → paged list → create branch (happy path).
-3. Plan **second vertical slice** for branches (detail, update, deactivate) against existing API.
+1. **Stricter CSP** (nonces, remove `'unsafe-inline'` for `style-src` if feasible) — see [security.md](../security.md).
+2. **New domain features** (new aggregates, integrations) — add a **new** milestone row in [status.md](status.md).
 
 ### 9.1) Mandatory delivery format per phase
 

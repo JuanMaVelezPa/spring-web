@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jm.spring_web.application.branch.BranchListPagination;
 import com.jm.spring_web.application.branch.model.BranchResult;
 import com.jm.spring_web.application.branch.model.CreateBranchCommand;
 import com.jm.spring_web.application.branch.model.UpdateBranchCommand;
@@ -23,12 +24,14 @@ import com.jm.spring_web.application.branch.usecase.DeactivateBranchUseCase;
 import com.jm.spring_web.application.branch.usecase.GetBranchUseCase;
 import com.jm.spring_web.application.branch.usecase.ListBranchesUseCase;
 import com.jm.spring_web.application.branch.usecase.UpdateBranchUseCase;
+import com.jm.spring_web.application.common.pagination.PageQuery;
 import com.jm.spring_web.entrypoints.rest.dto.BranchResponse;
 import com.jm.spring_web.entrypoints.rest.dto.CreateBranchRequest;
 import com.jm.spring_web.entrypoints.rest.dto.PageRequestParams;
 import com.jm.spring_web.entrypoints.rest.dto.PagedResponse;
 import com.jm.spring_web.entrypoints.rest.dto.UpdateBranchRequest;
 import com.jm.spring_web.entrypoints.rest.mapper.PageMapper;
+import com.jm.spring_web.entrypoints.rest.pagination.PaginationBinding;
 import com.jm.spring_web.infrastructure.observability.AppMetrics;
 import io.micrometer.core.instrument.Timer;
 
@@ -76,11 +79,10 @@ public class BranchController {
 
     @GetMapping
     public PagedResponse<BranchResponse> list(@Valid @ParameterObject PageRequestParams pagination) {
+        PageQuery query = PaginationBinding.toPageQuery(pagination, BranchListPagination.SORT_POLICY);
         return executeMeasured(
                 "list",
-                () -> PageMapper.toPagedResponse(
-                        listBranchesUseCase.execute(pagination.getPage(), pagination.getSize()),
-                        this::toResponse));
+                () -> PageMapper.toPagedResponse(listBranchesUseCase.execute(query), this::toResponse));
     }
 
     @PutMapping("/{id}")

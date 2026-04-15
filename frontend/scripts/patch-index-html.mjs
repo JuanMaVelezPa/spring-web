@@ -31,7 +31,8 @@ html = html
   .replace(/href="(styles-[^"]+\.css)"/g, 'href="/$1"')
   .replace(/href="(chunk-[^"]+\.js)"/g, 'href="/$1"')
   .replace(/src="(main-[^"]+\.js)"/g, 'src="/$1"')
-  .replace(/href="favicon\.ico"/g, 'href="/favicon.ico"');
+  .replace(/href="favicon\.ico"/g, 'href="/favicon.ico"')
+  .replace(/href="favicon\.svg([^"]*)"/g, 'href="/favicon.svg$1"');
 
 if (html === before) {
   console.warn('patch-index-html: no substitutions applied');

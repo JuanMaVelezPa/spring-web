@@ -4,23 +4,37 @@
     <h1 class="text-2xl font-semibold">{{ i18n.t('newBranchTitle') }}</h1>
   </div>
   <app-inline-alert [message]="error()" variant="error" [title]="i18n.t('createFailed')" />
-  <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
-    <label class="form-control w-full">
-      <span class="label-text">{{ i18n.t('code') }}</span>
-      <input class="input input-bordered w-full" formControlName="code" data-testid="branch-code" />
-      <span class="label-text-alt text-xs opacity-70">{{ i18n.t('codeHint') }}</span>
-    </label>
-    <label class="form-control w-full">
-      <span class="label-text">{{ i18n.t('name') }}</span>
-      <input class="input input-bordered w-full" formControlName="name" data-testid="branch-name" />
-    </label>
-    <label class="form-control w-full">
-      <span class="label-text">{{ i18n.t('city') }}</span>
-      <input class="input input-bordered w-full" formControlName="city" data-testid="branch-city" />
-    </label>
-    <app-loading-state [active]="saving()" [label]="i18n.t('savingBranch')" size="sm" />
-    <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()" data-testid="branch-submit">
-      {{ i18n.t('create') }}
-    </button>
-  </form>
+  <app-busy-section
+    class="rounded-xl"
+    [busy]="saving()"
+    [label]="i18n.t('savingBranch')"
+    spinnerSize="sm"
+  >
+    <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="form-control w-full">
+        <span class="label-text">{{ i18n.t('code') }}</span>
+        <input class="input input-bordered w-full" formControlName="code" data-testid="branch-code" />
+        <span class="label-text-alt text-xs opacity-70">{{ i18n.t('codeHint') }}</span>
+      </label>
+      <label class="form-control w-full">
+        <span class="label-text">{{ i18n.t('name') }}</span>
+        <input class="input input-bordered w-full" formControlName="name" data-testid="branch-name" />
+      </label>
+      <label class="form-control w-full">
+        <span class="label-text">{{ i18n.t('city') }}</span>
+        <input class="input input-bordered w-full" formControlName="city" data-testid="branch-city" />
+      </label>
+      <button
+        type="submit"
+        class="btn btn-primary gap-2"
+        [disabled]="form.invalid || saving()"
+        data-testid="branch-submit"
+      >
+        @if (saving()) {
+          <app-loading-spinner size="xs" />
+        }
+        {{ i18n.t('create') }}
+      </button>
+    </form>
+  </app-busy-section>
 </div>

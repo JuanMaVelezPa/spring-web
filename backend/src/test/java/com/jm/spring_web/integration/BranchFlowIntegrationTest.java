@@ -18,8 +18,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -94,6 +96,47 @@ class BranchFlowIntegrationTest {
         if (Boolean.TRUE.equals(outboxTableExists)) {
             jdbcTemplate.execute("DELETE FROM outbox_event");
         }
+    }
+
+    @Test
+    void shouldListBranchesWithPaginationRespectingPageSize() throws Exception {
+        String token = loginAndGetToken();
+        LocalDateTime now = LocalDateTime.now();
+        for (int i = 0; i < 12; i++) {
+            jdbcTemplate.update(
+                    """
+                            INSERT INTO branch (id, code, name, city, is_active, created_at, updated_at)
+                            VALUES (?, ?, ?, ?, true, ?, ?)
+                            """,
+                    UUID.randomUUID(),
+                    "BR-PAGE-" + i,
+                    "Branch " + i,
+                    "City",
+                    now,
+                    now);
+        }
+
+        mockMvc.perform(get("/api/v1/branches")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(10)))
+                .andExpect(jsonPath("$.totalElements").value(12))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalPages").value(2));
+
+        mockMvc.perform(get("/api/v1/branches")
+                        .param("page", "1")
+                        .param("size", "10")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.totalElements").value(12))
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalPages").value(2));
     }
 
     @Test

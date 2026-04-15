@@ -5,12 +5,19 @@ import { finalize } from 'rxjs';
 import { BranchApiService } from '../../core/branches/branch-api.service';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { problemDetailMessage } from '../../core/util/http-error';
+import { BusySectionComponent } from '../../shared/ui/busy-section/busy-section.component';
 import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
-import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-state.component';
+import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-branch-create',
-  imports: [ReactiveFormsModule, RouterLink, InlineAlertComponent, LoadingStateComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    InlineAlertComponent,
+    BusySectionComponent,
+    LoadingSpinnerComponent,
+  ],
   templateUrl: './branch-create.component.html',
 })
 export class BranchCreateComponent {

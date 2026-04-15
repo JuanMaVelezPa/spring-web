@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Branches">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f766e"/>
+      <stop offset="100%" style="stop-color:#134e4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Stylized tree / branch network -->
+  <path
+    fill="none"
+    stroke="#ecfdf5"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    d="M32 12v12M32 24c-8 0-14 6-14 14M32 24c8 0 14 6 14 14M18 38c4 4 8 6 14 6s10-2 14-6"
+  />
+  <circle cx="32" cy="12" r="4" fill="#5eead4"/>
+  <circle cx="18" cy="38" r="3.5" fill="#99f6e4"/>
+  <circle cx="46" cy="38" r="3.5" fill="#99f6e4"/>
+  <circle cx="32" cy="52" r="3.5" fill="#ccfbf1"/>
+</svg>

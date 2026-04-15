@@ -62,6 +62,10 @@ With `prod`: Swagger disabled, actuator reduced, health details hidden.
 
 **Branch flow:** controller → use case → persist `branch` + `outbox_event` → relay publishes to Kafka → consumer idempotent via `processed_event`.
 
+## Security (learning index)
+
+Phase-aligned notes (Problem Details, JWT + refresh cookie, what minification does *not* do, CSP, etc.): [**docs/security.md**](../docs/security.md).
+
 ## Security matrix (summary)
 
 - Public: `/api/v1/auth/**`, Swagger/OpenAPI (non-prod), `GET /actuator/health`, `GET /actuator/info`
@@ -73,9 +77,21 @@ Spring does **not** serve the static UI; the **`web`** container (Nginx) does on
 
 **Auth:** login sets HttpOnly refresh cookie; access token in response body (SPA keeps it in memory). `POST /api/v1/auth/logout` clears refresh cookie (`204`).
 
-## Pagination
+## Pagination (standard for list endpoints)
 
-`GET /api/v1/branches?page=0&size=20` returns `content`, `totalElements`, `page`, `size`, `totalPages`. Defaults `page=0`, `size=20`, max `size=100`. Utilities: `PageSlice`, `PageResult`, `PagedResponse`, `PageMapper`, `PageRequestParams`.
+`GET /api/v1/branches?page=0&size=20` returns `content`, `totalElements`, `page`, `size`, `totalPages`. Defaults `page=0`, `size=20`, max `size=100`. Optional `sort=property,asc|desc` (allowed fields are per resource).
+
+**Layers (reuse for new aggregates):**
+
+| Piece | Role |
+|-------|------|
+| `PageRequestParams` | HTTP query (`page`, `size`, `sort`) with Bean Validation |
+| `PaginationBinding` | Maps to application `PageQuery` + resource `SortPolicy` |
+| `PageQuery` / `SortOrder` / `SortPolicy` | Framework-agnostic pagination in `application.common.pagination` |
+| `PageSlice` → `PageResult` | Repository slice → use case result; `PageMapper` → `PagedResponse` |
+| `SpringPageRequests` | `PageQuery` → Spring `PageRequest` (infrastructure only) |
+
+Each new list defines a `SortPolicy` (default + allowed JPA names), e.g. `BranchListPagination.SORT_POLICY`. The SPA sends `sort` aligned with that contract.
 
 ## Problem Details (errors)
 

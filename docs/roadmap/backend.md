@@ -1,6 +1,8 @@
 # Roadmap — Backend
 
-## 3) Backend Phase 1 - API Maturity and Consistency
+> **Short codes:** **B1** = this section (API maturity). **B2** = next section (security & reliability). Same labels as [status.md](status.md).
+
+## 3) Backend Phase 1 (**B1**) - API Maturity and Consistency
 
 ### Goals
 
@@ -39,7 +41,7 @@
 
 ---
 
-## 4) Backend Phase 2 - Security and Reliability
+## 4) Backend Phase 2 (**B2**) - Security and Reliability
 
 ### Goals
 

@@ -1,7 +1,11 @@
 import { Component, computed, input } from '@angular/core';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+
+export type LoadingSkeletonPreset = 'none' | 'table' | 'card' | 'form';
 
 @Component({
   selector: 'app-loading-state',
+  imports: [LoadingSpinnerComponent],
   templateUrl: './loading-state.component.html',
 })
 export class LoadingStateComponent {
@@ -11,18 +15,27 @@ export class LoadingStateComponent {
 
   readonly size = input<'sm' | 'md' | 'lg'>('md');
 
-  protected readonly spinnerClass = computed(() => {
-    const s = this.size();
-    if (s === 'sm') {
-      return 'loading loading-spinner loading-sm text-primary';
-    }
-    if (s === 'lg') {
-      return 'loading loading-spinner loading-lg text-primary';
-    }
-    return 'loading loading-spinner loading-md text-primary';
-  });
+  /**
+   * Placeholder layout while loading (lists, detail, forms).
+   * Use `none` for a centered spinner only.
+   */
+  readonly skeleton = input<LoadingSkeletonPreset>('none');
 
   protected readonly paddingClass = computed(() =>
     this.size() === 'lg' ? 'py-12' : 'py-8',
   );
+
+  protected readonly spinnerSize = computed((): 'sm' | 'md' | 'lg' => {
+    const s = this.size();
+    if (s === 'sm') {
+      return 'sm';
+    }
+    if (s === 'lg') {
+      return 'lg';
+    }
+    return 'md';
+  });
+
+  /** Row placeholders for the table skeleton. */
+  protected readonly tablePlaceholders = [1, 2, 3, 4, 5, 6] as const;
 }

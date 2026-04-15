@@ -1,0 +1,56 @@
+<div class="mx-auto flex max-w-lg flex-col gap-4">
+  <div class="flex items-center gap-2">
+    <a [routerLink]="branchId ? ['/branches', branchId] : ['/branches']" class="btn btn-ghost btn-sm">{{
+      i18n.t('back')
+    }}</a>
+    <h1 class="text-2xl font-semibold">{{ i18n.t('editBranchTitle') }}</h1>
+  </div>
+
+  <app-inline-alert [message]="loadError()" variant="warning" [title]="i18n.t('branchLoadFailed')" />
+  <app-inline-alert [message]="saveError()" variant="error" [title]="i18n.t('updateFailed')" />
+
+  <app-loading-state
+    [active]="loading()"
+    [label]="i18n.t('loadingBranch')"
+    size="md"
+    skeleton="form"
+  />
+
+  @if (!loading() && !loadError()) {
+    <app-busy-section
+      class="rounded-xl"
+      [busy]="saving()"
+      [label]="i18n.t('savingChanges')"
+      spinnerSize="sm"
+    >
+      <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-control w-full">
+          <span class="label-text">{{ i18n.t('code') }}</span>
+          <p class="input input-bordered flex min-h-12 w-full items-center bg-base-200 font-mono text-sm">
+            {{ code() }}
+          </p>
+          <span class="label-text-alt text-xs opacity-70">{{ i18n.t('codeReadOnlyHint') }}</span>
+        </div>
+        <label class="form-control w-full">
+          <span class="label-text">{{ i18n.t('name') }}</span>
+          <input class="input input-bordered w-full" formControlName="name" data-testid="branch-edit-name" />
+        </label>
+        <label class="form-control w-full">
+          <span class="label-text">{{ i18n.t('city') }}</span>
+          <input class="input input-bordered w-full" formControlName="city" data-testid="branch-edit-city" />
+        </label>
+        <button
+          type="submit"
+          class="btn btn-primary gap-2"
+          [disabled]="form.invalid || saving()"
+          data-testid="branch-edit-submit"
+        >
+          @if (saving()) {
+            <app-loading-spinner size="xs" />
+          }
+          {{ i18n.t('saveChanges') }}
+        </button>
+      </form>
+    </app-busy-section>
+  }
+</div>

@@ -6,10 +6,15 @@
 
   <app-inline-alert [message]="error()" variant="warning" [title]="i18n.t('warningTitle')" />
 
-  <app-loading-state [active]="loading()" [label]="i18n.t('loadingBranches')" size="md" />
+  <app-loading-state
+    [active]="loading()"
+    [label]="i18n.t('loadingBranches')"
+    size="md"
+    skeleton="table"
+  />
 
   @if (!loading() && data()) {
-    @if (data()!.content.length === 0) {
+    @if (data()!.totalElements === 0) {
       <div class="rounded-lg border border-dashed border-base-300 bg-base-100/60 px-6 py-10 text-center text-sm text-base-content/60">
         {{ i18n.t('emptyBranches') }}
       </div>
@@ -18,16 +23,50 @@
         <table class="table table-zebra">
           <thead>
             <tr>
-              <th>{{ i18n.t('code') }}</th>
-              <th>{{ i18n.t('name') }}</th>
-              <th>{{ i18n.t('city') }}</th>
-              <th>{{ i18n.t('active') }}</th>
+              <th scope="col" class="align-bottom">
+                <app-sortable-th
+                  [label]="i18n.t('code')"
+                  columnKey="code"
+                  [activeKey]="sortColumn()"
+                  [direction]="sortDirection()"
+                  (sortActivate)="onSortColumn($event)"
+                />
+              </th>
+              <th scope="col" class="align-bottom">
+                <app-sortable-th
+                  [label]="i18n.t('name')"
+                  columnKey="name"
+                  [activeKey]="sortColumn()"
+                  [direction]="sortDirection()"
+                  (sortActivate)="onSortColumn($event)"
+                />
+              </th>
+              <th scope="col" class="align-bottom">
+                <app-sortable-th
+                  [label]="i18n.t('city')"
+                  columnKey="city"
+                  [activeKey]="sortColumn()"
+                  [direction]="sortDirection()"
+                  (sortActivate)="onSortColumn($event)"
+                />
+              </th>
+              <th scope="col" class="align-bottom">
+                <app-sortable-th
+                  [label]="i18n.t('active')"
+                  columnKey="active"
+                  [activeKey]="sortColumn()"
+                  [direction]="sortDirection()"
+                  (sortActivate)="onSortColumn($event)"
+                />
+              </th>
             </tr>
           </thead>
           <tbody>
-            @for (b of data()!.content; track b.id) {
+            @for (b of visibleBranches(); track b.id) {
               <tr>
-                <td class="font-mono text-sm">{{ b.code }}</td>
+                <td class="font-mono text-sm">
+                  <a [routerLink]="['/branches', b.id]" class="link link-primary">{{ b.code }}</a>
+                </td>
                 <td>{{ b.name }}</td>
                 <td>{{ b.city }}</td>
                 <td>{{ b.isActive ? i18n.t('yes') : i18n.t('no') }}</td>
@@ -38,13 +77,14 @@
       </div>
     }
 
-    <app-page-nav
-      [page]="page()"
-      [pageSize]="pageSize()"
-      [totalPages]="data()!.totalPages"
-      [totalElements]="data()!.totalElements"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
-    />
+    @if (data()!.totalElements > 0) {
+      <app-page-nav
+        [page]="page()"
+        [pageSize]="pageSize()"
+        [totalElements]="data()!.totalElements"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    }
   }
 </div>

@@ -12,6 +12,7 @@ import { API_BASE_URL } from './core/config/api-base-url.token';
 import { I18nService } from './core/i18n/i18n.service';
 import { apiInterceptor } from './core/interceptors/api.interceptor';
 import { authErrorInterceptor } from './core/interceptors/auth-error.interceptor';
+import { refreshInterceptor } from './core/interceptors/refresh.interceptor';
 import { UserPreferencesService } from './core/preferences/user-preferences.service';
 import { UiFeedbackService } from './core/ui-feedback/ui-feedback.service';
 import { environment } from '../environments/environment';
@@ -30,6 +31,9 @@ export const appConfig: ApplicationConfig = {
       }),
     ),
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
-    provideHttpClient(withInterceptors([apiInterceptor, authErrorInterceptor])),
+    // Order matters: outgoing api → authError → refresh → HttpClient; incoming refresh runs first on errors (401 → cookie refresh + retry).
+    provideHttpClient(
+      withInterceptors([apiInterceptor, authErrorInterceptor, refreshInterceptor]),
+    ),
   ],
 };
