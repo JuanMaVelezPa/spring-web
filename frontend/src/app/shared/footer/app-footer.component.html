@@ -6,9 +6,9 @@
   >
     <span class="font-medium text-base-content">JuanMaVelezPa</span>
     <span class="text-base-content/30 select-none" aria-hidden="true">·</span>
-    <span class="text-base-content/70">Spring portfolio</span>
+    <span class="text-base-content/70">{{ i18n.t('footerPortfolio') }}</span>
     <span class="text-base-content/30 select-none" aria-hidden="true">·</span>
-    <nav class="contents" aria-label="Contacto">
+    <nav class="contents" [attr.aria-label]="i18n.t('footerContact')">
       <a
         class="link link-hover whitespace-nowrap"
         href="https://github.com/JuanMaVelezPa"

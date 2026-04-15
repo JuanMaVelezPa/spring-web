@@ -39,18 +39,18 @@ docker compose up -d --build
 - **Grafana:** http://localhost:3000 · **Prometheus:** http://localhost:9090  
 - Stop: `docker compose down` · Logs: `docker compose logs -f web app`
 
-### Login en la UI (valores por defecto)
+### UI login (default values)
 
-Tras `cp .env.example .env`, la API crea el usuario de aplicación definido en `.env`. **Por defecto** (según `.env.example`):
+After `cp .env.example .env`, the API creates the application user defined in `.env`. **Defaults** (from `.env.example`):
 
 | | |
 |--|--|
-| **Usuario** | `admin` |
-| **Contraseña** | `Admin_ChangeMe_2026!` |
+| **Username** | `admin` |
+| **Password** | `Admin_ChangeMe_2026!` |
 
-Si cambiaste `APP_USER` o `APP_PASSWORD` en tu `.env`, usa esos valores en el formulario de login.
+If you changed `APP_USER` or `APP_PASSWORD` in your `.env`, use those values in the login form.
 
-**Si el login responde `422 Unprocessable Content`:** el cuerpo suele ser *Invalid credentials* — la API está rechazando usuario/contraseña. Comprueba que en `.env` no haya comillas alrededor de `APP_PASSWORD`, que no queden espacios raros, y que **reinicies el contenedor `app`** (o el proceso Spring) tras cambiar la contraseña: el usuario en memoria se crea al arranque con el valor entonces vigente.
+**If login responds `422 Unprocessable Content`:** the response body is typically *Invalid credentials* — the API is rejecting username/password. Check that `.env` has no quotes around `APP_PASSWORD`, no trailing spaces, and **restart the `app` container** (or Spring process) after changing it: the in-memory user is created at startup with the then-current value.
 
 Variables, Alertmanager, and production-like compose: [backend/README.md](backend/README.md).
 

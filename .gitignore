@@ -36,3 +36,6 @@ monitoring/alertmanager/discord-webhook-url
 
 logs/*.log
 backend/logs/
+frontend/playwright-report/
+frontend/test-results/
+frontend/.playwright/

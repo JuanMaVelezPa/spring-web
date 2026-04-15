@@ -1,0 +1,11 @@
+<label class="select select-bordered select-sm w-full">
+  <span class="label sr-only">{{ i18n.t('language') }}</span>
+  <select
+    [value]="i18n.locale()"
+    [attr.aria-label]="i18n.t('language')"
+    (change)="onLocaleChange($event)"
+  >
+    <option value="en">{{ i18n.t('languageEnglish') }}</option>
+    <option value="es">{{ i18n.t('languageSpanish') }}</option>
+  </select>
+</label>
