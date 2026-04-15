@@ -28,11 +28,11 @@ Living checklist: update when a slice closes. Technical detail stays in module R
 | Item | Status | Notes |
 |------|--------|--------|
 | Branch detail, update, deactivate UI | **Pending** | Second slice per [frontend.md](frontend.md) |
-| Unit tests (services, preferences) | **Pending** | Roadmap: unit tests for non-trivial logic |
-| One E2E smoke (e.g. Playwright) | **Pending** | login → list → create |
-| OpenAPI-generated client | **Optional** | Roadmap allows manual types first |
-| i18n / `locale` wired to UI | **Pending** | Preference key exists; no ngx-translate yet |
-| Route-level global error boundary / toasts | **Partial** | Inline alerts per feature; no global toast service |
+| Unit tests (services, preferences) | **Done** | Added `auth.service.spec.ts` and `user-preferences.service.spec.ts`; `npm test` green. |
+| One E2E smoke (e.g. Playwright) | **Done** | `frontend/e2e/smoke.spec.ts` passes (`npm run test:e2e:smoke`) against running stack on `http://localhost:8080`. |
+| OpenAPI-generated client | **Done** | `npm run openapi:generate` wired with `openapi-typescript`; generation validated against running backend endpoint. |
+| i18n / `locale` wired to UI | **Done** | `I18nService` (EN/ES), language switcher in login/shell, locale persisted in preferences. |
+| Route-level global error boundary / toasts | **Done** | Global toast layer added; router navigation errors and session-expired events are surfaced globally. |
 
 ## Verification (quick)
 

@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { BranchApiService } from '../../core/branches/branch-api.service';
+import { I18nService } from '../../core/i18n/i18n.service';
 import { problemDetailMessage } from '../../core/util/http-error';
 import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
 import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-state.component';
@@ -16,6 +17,7 @@ export class BranchCreateComponent {
   private readonly fb = inject(FormBuilder);
   private readonly branches = inject(BranchApiService);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(I18nService);
 
   readonly error = signal<string | null>(null);
   readonly saving = signal(false);

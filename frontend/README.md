@@ -56,7 +56,7 @@ npm ci
 npm start
 ```
 
-Open `http://localhost:4200/`. Credenciales por defecto si copiaste [`.env.example`](../.env.example) a `.env` en la raíz del monorepo: **usuario** `admin`, **contraseña** `Admin_ChangeMe_2026!`. Si modificaste `APP_USER` / `APP_PASSWORD`, usa esos valores ([README raíz](../README.md#login-en-la-ui-valores-por-defecto)).
+Open `http://localhost:4200/`. Default credentials (if you copied [`.env.example`](../.env.example) to `.env` at repo root): **username** `admin`, **password** `Admin_ChangeMe_2026!`. If you changed `APP_USER` / `APP_PASSWORD`, use those values instead ([root README](../README.md#ui-login-default-values)).
 
 ## Build
 
@@ -87,6 +87,55 @@ docker compose up -d web
 ```bash
 npm test
 ```
+
+### E2E smoke (Playwright)
+
+```bash
+# install browsers once
+npx playwright install
+
+# run the critical-path smoke
+npm run test:e2e:smoke
+```
+
+Defaults:
+- `E2E_BASE_URL=http://localhost:8080`
+- `E2E_USER=admin`
+- `E2E_PASSWORD=Admin_ChangeMe_2026!`
+
+The smoke verifies: login -> branches list -> create branch -> back to list with created code visible.
+
+## i18n (EN/ES)
+
+- Runtime i18n is implemented with a lightweight `I18nService` (`core/i18n`), no external runtime dependency.
+- Locale is persisted via `UserPreferencesService` (`spring-web.pref.v1.locale`), and can be switched from login and shell headers.
+- Supported locales: `en`, `es`.
+
+## OpenAPI generation (typed models baseline)
+
+Generate/update the frontend OpenAPI typings from the backend:
+
+```bash
+# default source: http://localhost:8081/v3/api-docs
+npm run openapi:generate
+```
+
+Optional custom spec URL:
+
+```bash
+OPENAPI_SPEC_URL=http://localhost:8081/v3/api-docs npm run openapi:generate
+```
+
+Output file: `src/app/core/models/openapi.generated.ts`.
+
+## Phase 5 completion snapshot
+
+- First vertical slice complete: login + paged branch list + create branch.
+- Theme + language preferences persisted (theme + locale).
+- Quality gate complete:
+  - `npm test` (unit tests) passes.
+  - `npm run test:e2e:smoke` (Playwright smoke) passes.
+  - `npm run openapi:generate` refreshes typed OpenAPI models when backend is reachable.
 
 ## Folder layout
 

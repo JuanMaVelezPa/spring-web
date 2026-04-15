@@ -1,26 +1,26 @@
 <div class="mx-auto flex max-w-lg flex-col gap-4">
   <div class="flex items-center gap-2">
-    <a routerLink="/branches" class="btn btn-ghost btn-sm">Back</a>
-    <h1 class="text-2xl font-semibold">New branch</h1>
+    <a routerLink="/branches" class="btn btn-ghost btn-sm">{{ i18n.t('back') }}</a>
+    <h1 class="text-2xl font-semibold">{{ i18n.t('newBranchTitle') }}</h1>
   </div>
-  <app-inline-alert [message]="error()" variant="error" title="Could not create branch" />
+  <app-inline-alert [message]="error()" variant="error" [title]="i18n.t('createFailed')" />
   <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
     <label class="form-control w-full">
-      <span class="label-text">Code</span>
-      <input class="input input-bordered w-full" formControlName="code" />
-      <span class="label-text-alt text-xs opacity-70">Letters, numbers, underscore, hyphen</span>
+      <span class="label-text">{{ i18n.t('code') }}</span>
+      <input class="input input-bordered w-full" formControlName="code" data-testid="branch-code" />
+      <span class="label-text-alt text-xs opacity-70">{{ i18n.t('codeHint') }}</span>
     </label>
     <label class="form-control w-full">
-      <span class="label-text">Name</span>
-      <input class="input input-bordered w-full" formControlName="name" />
+      <span class="label-text">{{ i18n.t('name') }}</span>
+      <input class="input input-bordered w-full" formControlName="name" data-testid="branch-name" />
     </label>
     <label class="form-control w-full">
-      <span class="label-text">City</span>
-      <input class="input input-bordered w-full" formControlName="city" />
+      <span class="label-text">{{ i18n.t('city') }}</span>
+      <input class="input input-bordered w-full" formControlName="city" data-testid="branch-city" />
     </label>
-    <app-loading-state [active]="saving()" label="Saving branch…" size="sm" />
-    <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
-      Create
+    <app-loading-state [active]="saving()" [label]="i18n.t('savingBranch')" size="sm" />
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()" data-testid="branch-submit">
+      {{ i18n.t('create') }}
     </button>
   </form>
 </div>

@@ -4,9 +4,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
+import { I18nService } from '../../core/i18n/i18n.service';
 import { problemDetailMessage } from '../../core/util/http-error';
 import { AppFooterComponent } from '../../shared/footer/app-footer.component';
 import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
+import { LanguageSwitcherComponent } from '../../shared/ui/language-switcher/language-switcher.component';
 import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-state.component';
 import { ThemeToggleComponent } from '../../shared/ui/theme-toggle/theme-toggle.component';
 
@@ -18,6 +20,7 @@ import { ThemeToggleComponent } from '../../shared/ui/theme-toggle/theme-toggle.
     InlineAlertComponent,
     LoadingStateComponent,
     ThemeToggleComponent,
+    LanguageSwitcherComponent,
   ],
   templateUrl: './login.component.html',
 })
@@ -26,6 +29,7 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  protected readonly i18n = inject(I18nService);
 
   readonly error = signal<string | null>(null);
   readonly submitting = signal(false);
@@ -33,7 +37,7 @@ export class LoginComponent {
   readonly sessionNotice = toSignal(
     this.route.queryParamMap.pipe(
       map((p): string | null =>
-        p.get('session') === 'expired' ? 'Your session expired. Please sign in again.' : null,
+        p.get('session') === 'expired' ? this.i18n.t('sessionExpired') : null,
       ),
     ),
     { initialValue: null as string | null },

@@ -4,7 +4,7 @@
   <p class="text-center text-sm text-base-content/70 sm:text-left">{{ summary() }}</p>
   <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
     <label class="flex items-center gap-2 text-xs text-base-content/60">
-      <span>Per page</span>
+      <span>{{ i18n.t('perPage') }}</span>
       <select
         class="select select-bordered select-xs max-w-[4.5rem]"
         [value]="pageSize()"
@@ -23,7 +23,7 @@
         (click)="prev()"
       >
         <span aria-hidden="true">←</span>
-        Prev
+        {{ i18n.t('prev') }}
       </button>
       <button
         type="button"
@@ -31,7 +31,7 @@
         [disabled]="!canNext()"
         (click)="next()"
       >
-        Next
+        {{ i18n.t('next') }}
         <span aria-hidden="true">→</span>
       </button>
     </div>

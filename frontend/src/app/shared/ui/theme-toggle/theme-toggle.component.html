@@ -1,0 +1,9 @@
+<button
+  type="button"
+  class="btn btn-ghost btn-sm gap-2"
+  (click)="prefs.toggleTheme()"
+  [attr.aria-label]="themeLabel()"
+>
+  <span class="text-lg leading-none" aria-hidden="true">{{ themeIcon() }}</span>
+  <span class="hidden sm:inline">{{ themeLabel() }}</span>
+</button>

@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { BranchApiService } from '../../core/branches/branch-api.service';
+import { I18nService } from '../../core/i18n/i18n.service';
 import type { Branch, PagedResponse } from '../../core/models/api-types';
 import { problemDetailMessage } from '../../core/util/http-error';
 import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
@@ -15,6 +16,7 @@ import { PageNavComponent } from '../../shared/ui/page-nav/page-nav.component';
 })
 export class BranchListComponent implements OnInit {
   private readonly branches = inject(BranchApiService);
+  protected readonly i18n = inject(I18nService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);

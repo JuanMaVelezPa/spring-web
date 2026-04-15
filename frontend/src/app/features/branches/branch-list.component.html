@@ -1,27 +1,27 @@
 <div class="flex flex-col gap-4">
   <div class="flex flex-wrap items-center justify-between gap-2">
-    <h1 class="text-2xl font-semibold">Branches</h1>
-    <a routerLink="/branches/new" class="btn btn-primary btn-sm">New branch</a>
+    <h1 class="text-2xl font-semibold">{{ i18n.t('branchesTitle') }}</h1>
+    <a routerLink="/branches/new" class="btn btn-primary btn-sm">{{ i18n.t('newBranch') }}</a>
   </div>
 
-  <app-inline-alert [message]="error()" variant="warning" title="Something went wrong" />
+  <app-inline-alert [message]="error()" variant="warning" [title]="i18n.t('warningTitle')" />
 
-  <app-loading-state [active]="loading()" label="Loading branches…" size="md" />
+  <app-loading-state [active]="loading()" [label]="i18n.t('loadingBranches')" size="md" />
 
   @if (!loading() && data()) {
     @if (data()!.content.length === 0) {
       <div class="rounded-lg border border-dashed border-base-300 bg-base-100/60 px-6 py-10 text-center text-sm text-base-content/60">
-        No branches yet. Create one to get started.
+        {{ i18n.t('emptyBranches') }}
       </div>
     } @else {
       <div class="overflow-x-auto rounded-lg border border-base-300/80 bg-base-100 shadow-sm">
         <table class="table table-zebra">
           <thead>
             <tr>
-              <th>Code</th>
-              <th>Name</th>
-              <th>City</th>
-              <th>Active</th>
+              <th>{{ i18n.t('code') }}</th>
+              <th>{{ i18n.t('name') }}</th>
+              <th>{{ i18n.t('city') }}</th>
+              <th>{{ i18n.t('active') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -30,7 +30,7 @@
                 <td class="font-mono text-sm">{{ b.code }}</td>
                 <td>{{ b.name }}</td>
                 <td>{{ b.city }}</td>
-                <td>{{ b.isActive ? 'Yes' : 'No' }}</td>
+                <td>{{ b.isActive ? i18n.t('yes') : i18n.t('no') }}</td>
               </tr>
             }
           </tbody>

@@ -73,7 +73,8 @@ frontend/
 - Problem Details (or API error shape) surfaced in user-friendly messages.
 - `frontend/README.md` documents run, build, test, and folder layout.
 
-**Progress:** see [status.md](status.md) for a maintained checklist (preferences, responsive layout, docs — tracked there). Remaining for full Phase DoD: broader **unit tests** and **one E2E smoke** per §Testing above.
+**Progress:** see [status.md](status.md) for a maintained checklist (preferences, responsive layout, docs, tests, i18n/OpenAPI).  
+Current remaining focus after first-slice closure: **second slice** (branch detail, update, deactivate) and optional UX hardening (global toasts/error boundary).
 
 ---
 
