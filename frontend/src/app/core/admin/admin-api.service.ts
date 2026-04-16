@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../config/api-base-url.token';
 import type {
   AdminRole,
   AdminUser,
+  AuditLogEntry,
   CreateUserPayload,
   PagedResponse,
   SetUserEnabledPayload,
@@ -20,6 +21,16 @@ export class AdminApiService {
 
   listRoles(): Observable<AdminRole[]> {
     return this.http.get<AdminRole[]>(apiUrl(this.apiBaseUrl, ApiPaths.adminRoles));
+  }
+
+  listAuditLogs(page: number, size: number, sort?: string): Observable<PagedResponse<AuditLogEntry>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (sort) {
+      params = params.set('sort', sort);
+    }
+    return this.http.get<PagedResponse<AuditLogEntry>>(apiUrl(this.apiBaseUrl, ApiPaths.adminAuditLogs), {
+      params,
+    });
   }
 
   listUsers(page: number, size: number, sort?: string): Observable<PagedResponse<AdminUser>> {

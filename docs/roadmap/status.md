@@ -16,29 +16,83 @@ Living checklist: update when a milestone closes. Technical detail stays in modu
 | **4** | **F2** | Frontend — Second slice: branch **detail + update + deactivate** (API was already in B1) | **Done** |
 | **5** | **H1** | Frontend **hardening**: silent **refresh** interceptor + **CSP** / security headers on Nginx (`web`) | **Done** |
 
-### Planned — map to [evolution.md](evolution.md)
+### IAM & later waves — map to [evolution.md](evolution.md)
 
-| Version | Wave | Codes (summary) | Status |
-|---------|------|-----------------|--------|
-| **v1.1** | 1 | **IAM1** | Planned |
-| **v1.2** | 2 | **IAM2**, **IAM3** | Planned |
+Work landed **out of strict wave order** in places (e.g. **F3** and much of **IAM2/IAM3** shipped while IAM1 was still maturing). Use the tables below for **what is done vs what remains**; the version column is the **template label** when you choose to “close” a wave.
+
+| Version | Wave | Codes (summary) | Closure status |
+|---------|------|-----------------|----------------|
+| **v1.1** | 1 | **IAM1** | **Mostly done** — close after you accept email-only §1.1 for this baseline (phone/OAuth → IAM5). |
+| **v1.2** | 2 | **IAM2**, **IAM3** | **Done** for this template (super-admin IAM + audit read + method security). Optional multi-app scope remains YAGNI. |
 | **v1.3** | 3 | **F3** | **Done** |
-| **v1.4** | 4 | **IAM4** | Planned |
-| **v1.5** | 5 | **IAM5** | Planned |
-| **v1.6** | 6 | **IAM6** | Planned |
-| **v1.7** | 7 | **IAM7** | Planned |
+| **v1.4** | 4 | **IAM4** | Not started |
+| **v1.5** | 5 | **IAM5** | Not started (forgot password, OTP, **phone**, Google OAuth, …) |
+| **v1.6** | 6 | **IAM6** | Not started |
+| **v1.7** | 7 | **IAM7** | Not started |
 
 Detail per milestone: [auth-platform.md](auth-platform.md), [frontend.md](frontend.md). Cross-cutting: [security.md](../security.md).
 
-### Progress note (current branch)
+---
 
+## IAM implementation and gaps (this repo)
+
+Single place for **code truth** vs **auth-platform.md** (design). Update this section when you close a gap.
+
+### IAM1: Persistence and login
+
+| Deliverable | Status |
+|-------------|--------|
+| Flyway **V3** `iam_user` / `iam_role` / `iam_user_role`; JWT **`sub`** = user id; bcrypt; bootstrap **SUPER_ADMIN** | **Done** |
+| DB-backed `UserDetailsService` (`DbUserDetailsService`) | **Done** |
+| Shared **password policy** (admin create + design for future flows) | **Done** |
+| **Lockout** (`failed_login_count`, `locked_until`, configurable thresholds) | **Done** |
+| §1.1 extras: **phone**, **OAuth** columns, **handle**, multi-anchor linking | **Deferred** → **IAM5+** (optional preparatory migration earlier if useful) |
+| **Registration** (public sign-up) | **Not implemented** → optional **IAM3** polish or **IAM5** scope |
+| **`GET /me`** (or profile) for SPA | **Not implemented** → optional small **IAM1/3** task |
+
+### IAM2: Admin APIs and enforcement
+
+| Deliverable | Status |
+|-------------|--------|
+| REST **`/api/v1/admin/users`** (list, get, create, set enabled, set roles) | **Done** |
+| REST **`/api/v1/admin/roles`** (list) | **Done** |
+| **`SUPER_ADMIN` only** on `/api/v1/admin/**` (`SecurityConfig`) | **Done** |
+| **`APP_ADMIN`** on **`/api/v1/branches/**`** only (not on IAM admin) | **Done** (single-app template) |
+| **IAM audit** persistence (**V4** `iam_audit_log`) on user create / enable / roles | **Done** |
+| Metrics for admin actions | **Done** (`app_iam_admin_action_total`, etc.) |
+| **`@PreAuthorize` / method-level** on admin REST controllers | **Done** (`@EnableMethodSecurity` + class-level `hasRole('SUPER_ADMIN')` on admin controllers). |
+| **APP_ADMIN “scoped” IAM** (per-application users/roles, `applications` table) | **Deferred** — **YAGNI** for single-deploy template; revisit for multi-tenant forks. |
+| **Read audit** API + operator UI | **Done** — `GET /api/v1/admin/audit-logs` (paged, sort `createdAt` / `action`); SPA **`/admin/audit-log`** with subnav. |
+| **Postman / OpenAPI** kept in sync with admin endpoints | **Ongoing** — verify when APIs change |
+
+### IAM3: Admin frontend
+
+| Deliverable | Status |
+|-------------|--------|
+| **`/admin`** lazy routes; **`roleGuard(['SUPER_ADMIN'])`** | **Done** |
+| Users + roles screens; TanStack Query + invalidation (**F3** pattern) | **Done** |
+| Create-user flow + password policy checklist | **Done** |
+| Login/register UX for **email + phone + Google** (§1.1) | **Partial** — **email/password login only**; **phone/Google** → **IAM5** |
+| **Change-password** UI (and API) | **Gap** → typically **IAM4/5** with reset flow, or small dedicated story |
+| Shell/nav visibility rules for roles | **Done** for super-admin entry to admin (refine as roles grow) |
+
+### What to do next (suggested order)
+
+1. **Declare v1.1 closed** in commits/tags when you are happy with email-only identity + lockout (no need to wait on phone).
+2. **v1.2 (IAM2/IAM3) for this repo:** closed with **method security** + **audit log read** + admin UI; multi-app IAM remains an optional fork extension.
+3. **IAM3 polish:** optional **`/me`**, **change-password** if you add the API; keep register/OAuth/phone aligned with **IAM5**.
+4. Then **IAM4** (refresh rotation, rate limits, MFA, …) per [evolution.md](evolution.md).
+
+### Progress note (recent delivery)
+
+- **v1.2 closure:** `@EnableMethodSecurity` + `@PreAuthorize("hasRole('SUPER_ADMIN')")` on admin controllers; **`GET /api/v1/admin/audit-logs`** (paged); admin UI subnav + **Audit** tab with TanStack Query.
 - IAM2/IAM3 advanced with reusable validation utilities:
   - Backend shared password policy utility wired into admin user creation.
   - Frontend reusable account validation utility + visual password rules checklist in Admin create-user flow.
 - List endpoints: default `size` aligned to **10** in `PageRequestParams` (matches Admin UI / branches list).
-- **F3 (wave 3):** TanStack Query (`@tanstack/angular-query-experimental`) — branches **and admin users/roles** use query keys + cached reads (`staleTime` 5 min, `refetchOnWindowFocus`) with invalidation on mutations.
-- Lazy loading refined by moving `admin` and `branches` trees to route-level `loadChildren` groups for cleaner chunk boundaries.
-- Delivery tuning: DaisyUI `include` subset in `styles.css` (smaller CSS), `nginx.conf` gzip + long-cache hashed assets + no-store `index.html`, Angular `initial` budget aligned (~`560kB` warning).
+- **F3 (wave 3):** TanStack Query — branches **and admin users/roles** use query keys + cached reads (`staleTime` 5 min, `refetchOnWindowFocus`) with invalidation on mutations.
+- Lazy loading: `admin` and `branches` route-level `loadChildren`.
+- Delivery tuning: DaisyUI `include` subset, `nginx.conf` gzip + long-cache hashed assets + no-store `index.html`, Angular `initial` budget (~`560kB` warning).
 
 ---
 

@@ -105,7 +105,7 @@ Phase-aligned notes (Problem Details, JWT + refresh cookie, what minification do
 
 - Public: `/api/v1/auth/**`, Swagger/OpenAPI (non-prod), `GET /actuator/health`, `GET /actuator/info`
 - Optional public: `/actuator/metrics/**`, `/actuator/prometheus` (configurable)
-- **SUPER_ADMIN:** `/api/v1/admin/**` (IAM admin APIs)
+- **SUPER_ADMIN:** `/api/v1/admin/**` (users, roles, **audit log** `GET /api/v1/admin/audit-logs`)
 - **SUPER_ADMIN / APP_ADMIN:** `/api/v1/branches/**`
 - Other routes: authenticated
 

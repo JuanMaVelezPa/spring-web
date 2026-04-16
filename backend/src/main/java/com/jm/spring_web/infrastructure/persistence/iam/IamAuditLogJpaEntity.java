@@ -40,5 +40,29 @@ public class IamAuditLogJpaEntity {
         this.metadata = metadata;
         this.createdAt = createdAt;
     }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getActorUserId() {
+        return actorUserId;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public UUID getTargetUserId() {
+        return targetUserId;
+    }
+
+    public String getMetadata() {
+        return metadata;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 }
 

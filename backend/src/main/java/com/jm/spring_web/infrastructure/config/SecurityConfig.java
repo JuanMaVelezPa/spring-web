@@ -2,6 +2,7 @@ package com.jm.spring_web.infrastructure.config;
 
 import com.jm.spring_web.infrastructure.security.JwtAuthenticationFilter;
 import com.jm.spring_web.infrastructure.security.JwtProperties;
+import com.jm.spring_web.infrastructure.security.LoginLockoutProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,7 +33,8 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableMethodSecurity
+@EnableConfigurationProperties({JwtProperties.class, LoginLockoutProperties.class})
 public class SecurityConfig {
     @Value("${app.security.actuator-public:true}")
     private boolean actuatorPublic;

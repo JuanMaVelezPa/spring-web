@@ -57,3 +57,13 @@ export type AdminRole = {
 export type CreateUserPayload = components['schemas']['CreateUserRequest'];
 export type SetUserRolesPayload = components['schemas']['SetUserRolesRequest'];
 export type SetUserEnabledPayload = components['schemas']['SetUserEnabledRequest'];
+
+type OpenApiAuditLog = components['schemas']['AdminAuditLogResponse'];
+export type AuditLogEntry = {
+  id: NonNullable<OpenApiAuditLog['id']>;
+  actorUserId: NonNullable<OpenApiAuditLog['actorUserId']>;
+  action: NonNullable<OpenApiAuditLog['action']>;
+  targetUserId: OpenApiAuditLog['targetUserId'] | null | undefined;
+  metadata: OpenApiAuditLog['metadata'] | null | undefined;
+  createdAt: NonNullable<OpenApiAuditLog['createdAt']>;
+};

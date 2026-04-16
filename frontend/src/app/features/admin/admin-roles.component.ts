@@ -7,10 +7,11 @@ import { I18nService } from '../../core/i18n/i18n.service';
 import { problemDetailMessage } from '../../core/util/http-error';
 import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
 import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-state.component';
+import { AdminSubnavComponent } from './admin-subnav.component';
 
 @Component({
   selector: 'app-admin-roles',
-  imports: [InlineAlertComponent, LoadingStateComponent],
+  imports: [InlineAlertComponent, LoadingStateComponent, AdminSubnavComponent],
   templateUrl: './admin-roles.component.html',
 })
 export class AdminRolesComponent {

@@ -90,17 +90,20 @@ spring-web/
 
 ---
 
-## 9) Immediate Next Step
+## 9) Immediate next step
 
-**v1.0** is complete (**B1, B2, F1, F2, H1**). Next increments: [**evolution.md**](roadmap/evolution.md) (**Wave 1 → v1.1** starts with **IAM1**).
+**v1.0** is complete (**B1, B2, F1, F2, H1**). **F3** is also complete. **IAM1–IAM3** are **largely implemented** in code; remaining items and wave closure are tracked in [**status.md — IAM**](status.md#iam-implementation-and-gaps-this-repo) (not “all Planned” anymore).
+
+**Suggested focus:** tag **v1.1** when email-only identity + lockout are accepted; **v1.2** (admin + audit + method security) is implemented in this repo — next template wave is **IAM4+** per [**evolution.md**](evolution.md).
 
 References:
 
-1. [**evolution.md**](roadmap/evolution.md) — **waves**, **v1.x** template versions, BE+FE ordering.
-2. [auth-platform.md](roadmap/auth-platform.md) — IAM design (**§1.1**, **§2.2**, **§2.3**).
-3. [frontend.md](roadmap/frontend.md) — **F3** client cache (scheduled in **v1.3**).
-4. **Stricter CSP** — [security.md](../security.md) (cross-cutting).
-5. **New domain features** — add a row to [status.md](status.md) and assign a **wave** in evolution.md.
+1. [**status.md**](status.md) — **checklist**, IAM done vs gaps, verification commands.
+2. [**evolution.md**](evolution.md) — **waves**, **v1.x** template versions, BE+FE ordering.
+3. [auth-platform.md](auth-platform.md) — IAM design (**§1.1**, **§2.2**, **§2.3**).
+4. [frontend.md](frontend.md) — **F3** client cache (closed).
+5. **Stricter CSP** — [security.md](../security.md) (cross-cutting).
+6. **New domain features** — add a row to [status.md](status.md) and assign a **wave** in evolution.md.
 
 ### 9.1) Mandatory delivery format per phase
 

@@ -27,11 +27,15 @@ Checklist: [status.md](status.md) (steps 1–5 **Done**).
 
 | Track | Deliverables |
 |-------|----------------|
-| **Backend** | **IAM1** — DB `users` / roles per §1.1 [auth-platform.md](auth-platform.md), password policy, lockout, seed SUPER_ADMIN, JWT `sub` = user id, replace in-memory `UserDetailsService`. |
-| **Frontend** | Minimal alignment: login/register flows still work against new API; optional **/me** or claims display; OpenAPI regenerate. **No** full admin UI yet. |
+| **Backend** | **IAM1** — DB users / roles (email/password baseline per §1.1 [auth-platform.md](auth-platform.md)), shared password policy, **lockout**, seed SUPER_ADMIN, JWT `sub` = user id, DB-backed `UserDetailsService`. |
+| **Frontend** | Login (and any **email/password** flows) aligned with API; OpenAPI typings regenerated. Optional **/me** or profile claims — see [status.md — IAM gaps](status.md#iam-implementation-and-gaps-this-repo). |
 
-**Outcome:** Real accounts in PostgreSQL; same fork template, new Flyway migrations.  
+**Original note:** “No full admin UI yet” applied to the **first** IAM wave; in this repo the **admin UI** was implemented together with **IAM2/IAM3** (wave 2). Treat wave 1 as **identity + login**; wave 2 as **admin + UI**.
+
+**Outcome:** Real accounts in PostgreSQL; same fork template, Flyway migrations.  
 **Learn:** End-to-end persistence auth, migration discipline.
+
+**Phone / OAuth / handle columns:** deferred to **IAM5+** (and optional preparatory migrations) unless you need schema early — see [status.md](status.md).
 
 ---
 
@@ -39,11 +43,13 @@ Checklist: [status.md](status.md) (steps 1–5 **Done**).
 
 | Track | Deliverables |
 |-------|----------------|
-| **Backend** | **IAM2** — Admin APIs, `APP_ADMIN` scoping, method security, IAM audit. |
-| **Frontend** | **IAM3** — Admin area, role guards, shell updates, OpenAPI alignment. |
+| **Backend** | **IAM2** — Admin APIs under `/api/v1/admin/...`, Spring Security enforcement, **IAM audit** for mutations, reuse password policy. **Target:** optional **APP_ADMIN**-scoped IAM for multi-app; **single-app template** may keep IAM admin **SUPER_ADMIN-only**. |
+| **Frontend** | **IAM3** — `/admin` area, **role guards**, shell/nav, OpenAPI alignment, admin flows (users / roles). |
 
-**Outcome:** Operators can manage users/roles from the UI (per design).  
-**Learn:** Authorization beyond a single `ADMIN` role, audit trail.
+**Outcome:** Operators can manage users/roles from the UI (super-admin in this template).  
+**Learn:** Authorization beyond a single generic admin, audit trail.
+
+**Reality check:** wave 2 is **closed** in this repo for the single-app template: **method-level** `hasRole('SUPER_ADMIN')` on admin controllers, **paged audit read** (`GET /api/v1/admin/audit-logs`), and SPA **`/admin/audit-log`**. Only **multi-app / APP_ADMIN-scoped IAM** stays intentionally deferred — see [status.md — IAM2](status.md#iam2-admin-apis-and-enforcement).
 
 ---
 
@@ -58,6 +64,8 @@ Checklist: [status.md](status.md) (steps 1–5 **Done**).
 **Learn:** Stale-while-revalidate, cache keys, invalidation rules.
 
 **Note:** If **v1.3** is needed earlier for UX, you may schedule **F3** right after **v1.0** as a **small side wave** — only if IAM work is not blocking; default order above keeps **identity correct** before optimizing traffic.
+
+**This repo:** **F3** was delivered **in parallel** with IAM work (admin lists use the same query-cache pattern as branches). That is fine; [status.md](status.md) tracks **wave closure** per milestone, not strict chronological order.
 
 ---
 

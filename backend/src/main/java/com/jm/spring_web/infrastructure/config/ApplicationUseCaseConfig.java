@@ -7,15 +7,18 @@ import com.jm.spring_web.application.branch.usecase.GetBranchUseCase;
 import com.jm.spring_web.application.branch.usecase.ListBranchesUseCase;
 import com.jm.spring_web.application.branch.usecase.UpdateBranchUseCase;
 import com.jm.spring_web.application.notification.port.OutboxEventRepositoryPort;
+import com.jm.spring_web.application.security.port.LoginAttemptPort;
 import com.jm.spring_web.application.security.port.TokenProviderPort;
 import com.jm.spring_web.application.security.port.UserCredentialsPort;
 import com.jm.spring_web.application.security.port.UserDirectoryPort;
+import com.jm.spring_web.application.security.port.AdminAuditLogPort;
 import com.jm.spring_web.application.security.port.AdminUserPort;
 import com.jm.spring_web.application.security.port.IamAuditPort;
 import com.jm.spring_web.application.security.usecase.AuthenticateUserUseCase;
 import com.jm.spring_web.application.security.usecase.RefreshTokenUseCase;
 import com.jm.spring_web.application.security.usecase.AdminCreateUserUseCase;
 import com.jm.spring_web.application.security.usecase.AdminGetUserUseCase;
+import com.jm.spring_web.application.security.usecase.AdminListAuditLogUseCase;
 import com.jm.spring_web.application.security.usecase.AdminListUsersUseCase;
 import com.jm.spring_web.application.security.usecase.AdminSetUserEnabledUseCase;
 import com.jm.spring_web.application.security.usecase.AdminSetUserRolesUseCase;
@@ -56,8 +59,9 @@ public class ApplicationUseCaseConfig {
     AuthenticateUserUseCase authenticateUserUseCase(
             UserCredentialsPort userCredentialsPort,
             TokenProviderPort tokenProviderPort,
-            UserDirectoryPort userDirectoryPort) {
-        return new AuthenticateUserUseCase(userCredentialsPort, tokenProviderPort, userDirectoryPort);
+            UserDirectoryPort userDirectoryPort,
+            LoginAttemptPort loginAttemptPort) {
+        return new AuthenticateUserUseCase(userCredentialsPort, tokenProviderPort, userDirectoryPort, loginAttemptPort);
     }
 
     @Bean
@@ -78,6 +82,11 @@ public class ApplicationUseCaseConfig {
     @Bean
     AdminListUsersUseCase adminListUsersUseCase(AdminUserPort adminUserPort) {
         return new AdminListUsersUseCase(adminUserPort);
+    }
+
+    @Bean
+    AdminListAuditLogUseCase adminListAuditLogUseCase(AdminAuditLogPort adminAuditLogPort) {
+        return new AdminListAuditLogUseCase(adminAuditLogPort);
     }
 
     @Bean

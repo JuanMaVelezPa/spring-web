@@ -3,6 +3,7 @@ package com.jm.spring_web.entrypoints.rest;
 import com.jm.spring_web.entrypoints.rest.dto.AdminRoleResponse;
 import com.jm.spring_web.infrastructure.observability.AppMetrics;
 import com.jm.spring_web.infrastructure.persistence.iam.IamRoleRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin/roles")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class AdminRoleController {
     private final IamRoleRepository roles;
     private final AppMetrics appMetrics;

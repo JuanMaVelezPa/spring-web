@@ -6,6 +6,9 @@ export const adminQueryKeys = {
   userList: (page: number, size: number, sort: string) =>
     [...adminQueryKeys.users(), 'list', page, size, sort] as const,
   roles: () => [...adminQueryKeys.all, 'roles'] as const,
+  auditLogs: () => [...adminQueryKeys.all, 'auditLogs'] as const,
+  auditLogList: (page: number, size: number, sort: string) =>
+    [...adminQueryKeys.auditLogs(), 'list', page, size, sort] as const,
 } as const;
 
 export function invalidateAdminUsers(queryClient: QueryClient): void {

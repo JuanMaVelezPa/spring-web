@@ -10,12 +10,13 @@ For delivery status, see [roadmap/status.md](roadmap/status.md).
 
 | Layer | Phase (roadmap) | Status for the *current* product goal |
 |-------|-----------------|----------------------------------------|
-| **Backend** | **B1** + **B2** (API maturity + auth/ops) | **Done** for the branch API and auth model used by the UI. |
+| **Backend** | **B1** + **B2** (API maturity + auth/ops) | **Done** for branch API + JWT/cookie auth. **IAM** persistence and admin APIs: see [status.md — IAM](roadmap/status.md#iam-implementation-and-gaps-this-repo). |
 | **Frontend** | **F1** (first slice) | **Done**: login, paged list, create branch, i18n, OpenAPI typings, tests, smoke. |
 | **Frontend** | **F2** (second slice) | **Done**: branch detail, update, deactivate in the UI (API from **B1**). |
 | **Frontend** | **H1** (hardening) | **Done**: `POST /api/v1/auth/refresh` via **`refreshInterceptor`** (cookie + `HttpBackend`); **CSP** and related headers on **`frontend/nginx.conf`**; FOUC script in **`public/theme-init.js`** for strict `script-src 'self'`. |
+| **Full stack** | **IAM1–IAM3** (identity + admin) | **Largely done**; remaining gaps (method security, audit read, `/me`, self-service auth UX) are listed in [status.md](roadmap/status.md). |
 
-**You do not need a new backend milestone** to finish branch CRUD in the browser: **F2** completes that story. New backend work starts only if you **expand scope** (new endpoints, integrations, rules).
+**Branch CRUD** in the browser is complete with **F2**. Further security work is **IAM waves** (audit, rate limits, MFA, recovery, OAuth, …) per [evolution.md](roadmap/evolution.md).
 
 ---
 

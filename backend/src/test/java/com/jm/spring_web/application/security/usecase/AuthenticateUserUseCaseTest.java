@@ -3,6 +3,7 @@ package com.jm.spring_web.application.security.usecase;
 import com.jm.spring_web.application.common.exception.UnprocessableEntityException;
 import com.jm.spring_web.application.security.model.AuthenticateCommand;
 import com.jm.spring_web.application.security.model.UserAccount;
+import com.jm.spring_web.application.security.port.LoginAttemptPort;
 import com.jm.spring_web.application.security.port.TokenProviderPort;
 import com.jm.spring_web.application.security.port.UserCredentialsPort;
 import com.jm.spring_web.application.security.port.UserDirectoryPort;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,12 +26,24 @@ class AuthenticateUserUseCaseTest {
         UserCredentialsPort credentials = (username, password) -> "admin".equals(username) && "admin123".equals(password);
         TokenProviderPort tokenProvider = testTokenProvider();
         UserDirectoryPort directory = testDirectory();
-        AuthenticateUserUseCase useCase = new AuthenticateUserUseCase(credentials, tokenProvider, directory);
+        AtomicInteger successes = new AtomicInteger();
+        LoginAttemptPort loginAttempts = new LoginAttemptPort() {
+            @Override
+            public void onFailedLogin(String attemptedEmail) {
+            }
+
+            @Override
+            public void onSuccessfulLogin(String email) {
+                successes.incrementAndGet();
+            }
+        };
+        AuthenticateUserUseCase useCase = new AuthenticateUserUseCase(credentials, tokenProvider, directory, loginAttempts);
 
         var result = useCase.execute(new AuthenticateCommand("admin", "admin123"));
 
         assertEquals("token-for-" + ADMIN_ID, result.token());
         assertEquals("refresh-for-" + ADMIN_ID, result.refreshToken());
+        assertEquals(1, successes.get());
     }
 
     @Test
@@ -36,9 +51,21 @@ class AuthenticateUserUseCaseTest {
         UserCredentialsPort credentials = (username, password) -> false;
         TokenProviderPort tokenProvider = testTokenProvider();
         UserDirectoryPort directory = testDirectory();
-        AuthenticateUserUseCase useCase = new AuthenticateUserUseCase(credentials, tokenProvider, directory);
+        AtomicReference<String> failedFor = new AtomicReference<>();
+        LoginAttemptPort loginAttempts = new LoginAttemptPort() {
+            @Override
+            public void onFailedLogin(String attemptedEmail) {
+                failedFor.set(attemptedEmail);
+            }
+
+            @Override
+            public void onSuccessfulLogin(String email) {
+            }
+        };
+        AuthenticateUserUseCase useCase = new AuthenticateUserUseCase(credentials, tokenProvider, directory, loginAttempts);
 
         assertThrows(UnprocessableEntityException.class, () -> useCase.execute(new AuthenticateCommand("admin", "wrong")));
+        assertEquals("admin", failedFor.get());
     }
 
     @Test
@@ -46,9 +73,22 @@ class AuthenticateUserUseCaseTest {
         UserCredentialsPort credentials = (username, password) -> true;
         TokenProviderPort tokenProvider = testTokenProvider();
         UserDirectoryPort directory = testDirectory();
-        AuthenticateUserUseCase useCase = new AuthenticateUserUseCase(credentials, tokenProvider, directory);
+        LoginAttemptPort loginAttempts = noopLoginAttempts();
+        AuthenticateUserUseCase useCase = new AuthenticateUserUseCase(credentials, tokenProvider, directory, loginAttempts);
 
         assertThrows(NullPointerException.class, () -> useCase.execute(null));
+    }
+
+    private static LoginAttemptPort noopLoginAttempts() {
+        return new LoginAttemptPort() {
+            @Override
+            public void onFailedLogin(String attemptedEmail) {
+            }
+
+            @Override
+            public void onSuccessfulLogin(String email) {
+            }
+        };
     }
 
     private TokenProviderPort testTokenProvider() {

@@ -20,6 +20,7 @@ import com.jm.spring_web.infrastructure.observability.AppMetrics;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,6 +35,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin/users")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class AdminUserController {
     private final AdminCreateUserUseCase createUserUseCase;
     private final AdminGetUserUseCase getUserUseCase;

@@ -90,6 +90,14 @@ public class IamUserJpaEntity {
         return lockedUntil;
     }
 
+    public int getFailedLoginCount() {
+        return failedLoginCount;
+    }
+
+    public void setFailedLoginCount(int failedLoginCount) {
+        this.failedLoginCount = failedLoginCount;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }

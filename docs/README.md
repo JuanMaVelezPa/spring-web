@@ -10,7 +10,7 @@ Central index for **roadmap**, **API tooling**, and cross-cutting planning.
 |----------|----------|
 | [Overview & standards](roadmap/overview.md) | Principles, monorepo layout, cross-phase docs, cadence, decided standards, Git workflow |
 | [**Base evolution (waves & v1.x)**](roadmap/evolution.md) | **Single ordered plan** — backend + frontend by wave; version bumps of the template |
-| [**Delivery status (checklist)**](roadmap/status.md) | **v1.0** done; planned milestones mapped to [evolution.md](roadmap/evolution.md); verification commands |
+| [**Delivery status (checklist)**](roadmap/status.md) | **v1.0** + **F3** done; **IAM1–IAM3** mostly done with explicit [gaps](roadmap/status.md#iam-implementation-and-gaps-this-repo); later waves in [evolution.md](roadmap/evolution.md); verification commands |
 | [Backend phases](roadmap/backend.md) | Phase 1 (API maturity), Phase 2 (security & reliability) |
 | [Frontend phase](roadmap/frontend.md) | Angular stack, slices, folder rules, DoD, **F3** client query cache |
 | [**Security (backend vs frontend, by phase)**](security.md) | i18n vs ngx-translate, production builds, obfuscation myths, hardening checklist |

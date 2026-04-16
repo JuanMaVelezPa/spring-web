@@ -13,6 +13,7 @@ export const ApiPaths = {
   branches: apiPath('/api/v1/branches'),
   adminRoles: apiPath('/api/v1/admin/roles'),
   adminUsers: apiPath('/api/v1/admin/users'),
+  adminAuditLogs: apiPath('/api/v1/admin/audit-logs'),
 } as const;
 
 /** Resolves `GET|PUT /api/v1/branches/{id}` — must stay aligned with OpenAPI `paths`. */

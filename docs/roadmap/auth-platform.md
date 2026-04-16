@@ -4,7 +4,9 @@
 
 **Implementation order:** use [**evolution.md**](evolution.md) — IAM work is split across **v1.1–v1.7** waves; this file is the **design reference**, not the schedule by itself.
 
-**Current baseline (this repo):** JWT access token + HttpOnly refresh cookie; `UserDetailsService` is **in-memory** with one `ADMIN` user; branch APIs require `ROLE_ADMIN`. See `SecurityConfig`, `AuthController`, [security.md](../security.md).
+**Current baseline (this repo):** JWT access token + HttpOnly refresh cookie; **PostgreSQL-backed** users and roles (`iam_user`, `iam_role`, Flyway **V3**); `UserDetailsService` is **`DbUserDetailsService`**; JWT **`sub`** is the user UUID; branch APIs require **`SUPER_ADMIN` or `APP_ADMIN`**; **`/api/v1/admin/**`** is **`SUPER_ADMIN` only**. See `SecurityConfig`, `AuthController`, `backend/README.md` (security matrix), [security.md](../security.md).
+
+**Implementation snapshot vs waves:** the design codes **IAM1–IAM7** are still the long-term map, but several slices landed **ahead of the original wave order** (e.g. admin UI + **F3** query cache while IAM1 was still being finalized). Authoritative checklist: [status.md — IAM implementation and gaps](status.md#iam-implementation-and-gaps-this-repo).
 
 **Pragmatic default:** Prefer **free or low-cost** building blocks first (SMTP modesto, SMS solo cuando haga falta, OAuth con cuotas gratuitas donde aplique). Upgrade paths (**paid** email/SMS, WAF, IdP, support tooling) are **explicitly deferred** until usage or risk justify the cost — avoid over-analysis up front; evolve with traction.
 

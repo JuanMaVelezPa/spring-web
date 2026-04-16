@@ -17,6 +17,7 @@ import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-sta
 import { PageNavComponent } from '../../shared/ui/page-nav/page-nav.component';
 import { PasswordRulesHintComponent } from '../../shared/ui/password-rules-hint/password-rules-hint.component';
 import { SortableThComponent } from '../../shared/ui/sortable-th/sortable-th.component';
+import { AdminSubnavComponent } from './admin-subnav.component';
 import { formatSortQuery, toggleTableSort, type SortDirection } from '../../shared/util/table-sort';
 import { isValidEmail, isValidPassword } from '../../core/validation/account-validation';
 
@@ -29,6 +30,7 @@ import { isValidEmail, isValidPassword } from '../../core/validation/account-val
     PageNavComponent,
     PasswordRulesHintComponent,
     SortableThComponent,
+    AdminSubnavComponent,
   ],
   templateUrl: './admin-users.component.html',
 })
