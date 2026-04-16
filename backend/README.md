@@ -125,7 +125,7 @@ For production, treat this as a **break-glass** path: rotate secrets and restric
 
 ## Pagination (standard for list endpoints)
 
-`GET /api/v1/branches?page=0&size=20` returns `content`, `totalElements`, `page`, `size`, `totalPages`. Defaults `page=0`, `size=20`, max `size=100`. Optional `sort=property,asc|desc` (allowed fields are per resource).
+`GET /api/v1/branches?page=0&size=10` returns `content`, `totalElements`, `page`, `size`, `totalPages`. Defaults `page=0`, `size=10`, max `size=100`. Optional `sort=property,asc|desc` (allowed fields are per resource).
 
 **Layers (reuse for new aggregates):**
 

@@ -5,6 +5,8 @@ import com.jm.spring_web.application.common.exception.NotFoundException;
 import com.jm.spring_web.application.common.exception.UnprocessableEntityException;
 import com.jm.spring_web.application.common.pagination.PageQuery;
 import com.jm.spring_web.application.common.pagination.PageResult;
+import com.jm.spring_web.application.security.EmailPolicy;
+import com.jm.spring_web.application.security.PasswordPolicy;
 import com.jm.spring_web.application.security.model.AdminUserResult;
 import com.jm.spring_web.application.security.model.CreateUserCommand;
 import com.jm.spring_web.application.security.port.AdminUserPort;
@@ -44,6 +46,13 @@ public class JpaAdminUserAdapter implements AdminUserPort {
         }
         if (command.rawPassword() == null || command.rawPassword().isBlank()) {
             throw new UnprocessableEntityException("Password is required");
+        }
+        if (!EmailPolicy.isValid(email)) {
+            throw new UnprocessableEntityException("Invalid email format");
+        }
+        List<String> passwordIssues = PasswordPolicy.violations(command.rawPassword());
+        if (!passwordIssues.isEmpty()) {
+            throw new UnprocessableEntityException(String.join("; ", passwordIssues));
         }
         if (users.findByEmailIgnoreCase(email).isPresent()) {
             throw new ConflictException("Email already exists");

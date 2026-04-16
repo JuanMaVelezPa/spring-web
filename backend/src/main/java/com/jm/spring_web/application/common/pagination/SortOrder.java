@@ -34,9 +34,13 @@ public record SortOrder(String property, SortDirection direction) {
         if (parts.length != 2) {
             throw new IllegalArgumentException("sort must be field,asc or field,desc");
         }
-        String field = parts[0].trim().toLowerCase(Locale.ROOT);
+        String requestedField = parts[0].trim();
         String dir = parts[1].trim().toLowerCase(Locale.ROOT);
-        if (!allowed.contains(field)) {
+        String field = allowed.stream()
+                .filter(candidate -> candidate.equalsIgnoreCase(requestedField))
+                .findFirst()
+                .orElse(null);
+        if (field == null) {
             throw new IllegalArgumentException("Invalid sort field");
         }
         SortDirection direction;

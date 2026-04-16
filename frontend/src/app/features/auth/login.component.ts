@@ -6,6 +6,7 @@ import { finalize, map } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { problemDetailMessage } from '../../core/util/http-error';
+import { isValidEmail } from '../../core/validation/account-validation';
 import { AppFooterComponent } from '../../shared/footer/app-footer.component';
 import { BusySectionComponent } from '../../shared/ui/busy-section/busy-section.component';
 import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
@@ -44,7 +45,7 @@ export class LoginComponent {
   );
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', Validators.required],
+    username: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
 
@@ -55,6 +56,10 @@ export class LoginComponent {
     this.error.set(null);
     this.submitting.set(true);
     const { username, password } = this.form.getRawValue();
+    if (!isValidEmail(username)) {
+      this.error.set(this.i18n.t('invalidEmail'));
+      return;
+    }
     this.auth
       .login(username, password)
       .pipe(finalize(() => this.submitting.set(false)))

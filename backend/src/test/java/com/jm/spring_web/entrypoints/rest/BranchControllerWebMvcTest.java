@@ -76,7 +76,7 @@ class BranchControllerWebMvcTest {
                         LocalDateTime.now())),
                 1,
                 0,
-                20,
+                10,
                 1));
 
         mockMvc.perform(get("/api/v1/branches"))
@@ -84,7 +84,7 @@ class BranchControllerWebMvcTest {
                 .andExpect(jsonPath("$.content[0].code").value("BR001"))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.page").value(0))
-                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.size").value(10))
                 .andExpect(jsonPath("$.totalPages").value(1));
     }
 

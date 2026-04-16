@@ -74,6 +74,8 @@ Single-organization-per-deployment (fork template) stays the default; features b
 | **Backend** | One **password policy** component (domain or application module): min/max length, character classes, deny common passwords (optional list), normalize Unicode. Used by **register**, **change password**, **admin set password**, **reset password**. Expose rules via **Problem Details** / field errors with stable codes. |
 | **Frontend** | Mirror the same rules with Angular **validators** + optional strength hint — **one documented mapping** from API error codes to messages (avoid divergent copy). Prefer importing **constants** generated from OpenAPI or a tiny shared JSON contract so DRY holds across forks. |
 
+**Progress note (implemented early):** IAM2 admin user creation now uses a shared password policy utility in backend and a reusable visual validation helper in frontend (real-time criteria checklist in the create-user modal).
+
 ### Login retries and lockout
 
 - Persist **failed attempt count** and optional **`locked_until`** (or permanent lock + admin unlock).

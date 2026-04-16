@@ -10,7 +10,7 @@ public class PageRequestParams {
 
     @Min(1)
     @Max(100)
-    private int size = 20;
+    private int size = 10;
 
     /**
      * Optional sort for list endpoints: {@code property,asc} or {@code property,desc}. Allowed fields are

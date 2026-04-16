@@ -30,6 +30,13 @@ Living checklist: update when a milestone closes. Technical detail stays in modu
 
 Detail per milestone: [auth-platform.md](auth-platform.md), [frontend.md](frontend.md). Cross-cutting: [security.md](../security.md).
 
+### Progress note (current branch)
+
+- IAM2/IAM3 advanced with reusable validation utilities:
+  - Backend shared password policy utility wired into admin user creation.
+  - Frontend reusable account validation utility + visual password rules checklist in Admin create-user flow.
+- List endpoints: default `size` aligned to **10** in `PageRequestParams` (matches Admin UI / branches list).
+
 ---
 
 ## B1 — Backend (recap)

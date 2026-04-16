@@ -2,6 +2,7 @@ package com.jm.spring_web.application.security;
 
 import com.jm.spring_web.application.common.pagination.SortOrder;
 import com.jm.spring_web.application.common.pagination.SortPolicy;
+import com.jm.spring_web.application.common.pagination.SortDirection;
 
 import java.util.Set;
 
@@ -10,7 +11,7 @@ public final class IamUserListPagination {
     }
 
     public static final SortPolicy SORT_POLICY = new SortPolicy(
-            new SortOrder("email", com.jm.spring_web.application.common.pagination.SortDirection.ASC),
+            new SortOrder("createdAt", SortDirection.DESC),
             Set.of("email", "enabled", "createdAt")
     );
 }

@@ -89,7 +89,7 @@ class AdminUserControllerWebMvcTest {
         mockMvc.perform(post("/api/v1/admin/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"email":"new@example.com","password":"Passw0rd!","roles":["USER"]}
+                                {"email":"new@example.com","password":"Passw0rd!_2026","roles":["USER"]}
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value("new@example.com"));

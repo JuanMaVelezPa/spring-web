@@ -35,7 +35,7 @@ export class BranchListComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly data = signal<PagedResponse<Branch> | null>(null);
   readonly page = signal(0);
-  readonly pageSize = signal(20);
+  readonly pageSize = signal(10);
   /** API field names — must match backend branch list whitelist (code, name, city, active). */
   readonly sortColumn = signal<'code' | 'name' | 'city' | 'active'>('code');
   readonly sortDirection = signal<SortDirection>('asc');

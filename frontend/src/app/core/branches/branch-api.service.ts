@@ -15,7 +15,7 @@ export class BranchApiService {
    *
    * @param sort required for stable ordering — e.g. {@code code,asc} (must match API whitelist).
    */
-  list(page = 0, size = 20, sort = 'code,asc') {
+  list(page = 0, size = 10, sort = 'code,asc') {
     const params = new HttpParams()
       .set('page', String(page))
       .set('size', String(size))
