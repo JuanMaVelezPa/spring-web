@@ -1,0 +1,273 @@
+<div class="flex flex-col gap-4">
+  <app-admin-subnav />
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h1 class="text-2xl font-semibold">{{ i18n.t('adminUsersTitle') }}</h1>
+    <dialog #createUserDialog class="modal" data-testid="admin-create-user-modal">
+      <div class="modal-box">
+        <h3 class="text-center text-lg font-semibold">{{ i18n.t('createUser') }}</h3>
+        <p class="mt-1 text-center text-xs text-base-content/70">{{ i18n.t('email') }} + {{ i18n.t('password') }} + {{ i18n.t('roles') }}</p>
+        <div class="mx-auto mt-4 grid max-w-lg gap-3">
+          <label class="form-control">
+            <div class="label">
+              <span class="label-text">{{ i18n.t('email') }}</span>
+            </div>
+            <input
+              class="input input-bordered w-full"
+              [class.input-error]="(createSubmitAttempted() || createEmailTouched()) && createEmail().trim().length > 0 && !createEmailValid()"
+              data-testid="admin-create-user-email"
+              [value]="createEmail()"
+              (input)="createEmail.set(($any($event.target).value ?? '').toString())"
+              (blur)="createEmailTouched.set(true)"
+              placeholder="user@example.com"
+              autocomplete="off"
+            />
+            @if ((createSubmitAttempted() || createEmailTouched()) && createEmail().trim().length > 0 && !createEmailValid()) {
+              <div class="label">
+                <span class="label-text-alt text-error text-xs">{{ i18n.t('invalidEmail') }}</span>
+              </div>
+            }
+          </label>
+          <label class="form-control">
+            <div class="label">
+              <span class="label-text">{{ i18n.t('password') }}</span>
+            </div>
+            <input
+              class="input input-bordered w-full"
+              [class.input-error]="(createSubmitAttempted() || createPasswordTouched()) && createPassword().length > 0 && !createPasswordValid()"
+              type="password"
+              data-testid="admin-create-user-password"
+              [value]="createPassword()"
+              (input)="createPassword.set(($any($event.target).value ?? '').toString())"
+              (blur)="createPasswordTouched.set(true)"
+              autocomplete="new-password"
+            />
+          </label>
+          <app-password-rules-hint [password]="createPassword()" />
+
+          <div>
+            <div class="label">
+              <span class="label-text">{{ i18n.t('roles') }}</span>
+            </div>
+            <div class="grid gap-2 sm:grid-cols-2">
+              @for (r of roleNames(); track r) {
+                <label class="flex items-center gap-2 rounded-md border border-base-300 bg-base-100 px-3 py-2">
+                  <input
+                    type="checkbox"
+                    class="checkbox checkbox-sm"
+                    [attr.data-testid]="'admin-create-user-role-' + r"
+                    [checked]="createSelectedRoles().has(r)"
+                    (change)="toggleCreateRole(r)"
+                  />
+                  <span class="font-mono text-sm">{{ r }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-action">
+          <form method="dialog" class="flex gap-2">
+            <button class="btn btn-ghost" [disabled]="mutating()">{{ i18n.t('cancel') }}</button>
+          </form>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-testid="admin-create-user-submit"
+            [disabled]="mutating() || !createEmailValid() || !createPasswordValid()"
+            (click)="submitCreate(createUserDialog)"
+          >
+            @if (mutating()) {
+              {{ i18n.t('saving') }}
+            } @else {
+              {{ i18n.t('create') }}
+            }
+          </button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <dialog #editRolesDialog class="modal" data-testid="admin-edit-roles-modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-semibold">{{ i18n.t('editRoles') }}</h3>
+        <p class="mt-1 text-sm text-base-content/70 font-mono">{{ rolesUser()?.email ?? '' }}</p>
+
+        <div class="mt-4 grid gap-2 sm:grid-cols-2">
+          @for (r of roleNames(); track r) {
+            <label class="flex items-center gap-2 rounded-md border border-base-300 bg-base-100 px-3 py-2">
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm"
+                [attr.data-testid]="'admin-edit-roles-role-' + r"
+                [checked]="rolesSelected().has(r)"
+                (change)="toggleEditRole(r)"
+              />
+              <span class="font-mono text-sm">{{ r }}</span>
+            </label>
+          }
+        </div>
+
+        <div class="modal-action">
+          <form method="dialog" class="flex gap-2">
+            <button class="btn btn-ghost" [disabled]="mutating()">{{ i18n.t('cancel') }}</button>
+          </form>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-testid="admin-edit-roles-submit"
+            [disabled]="mutating() || rolesSelected().size === 0"
+            (click)="submitEditRoles(editRolesDialog)"
+          >
+            @if (mutating()) {
+              {{ i18n.t('saving') }}
+            } @else {
+              {{ i18n.t('saveChanges') }}
+            }
+          </button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <dialog #confirmEnabledDialog class="modal" data-testid="admin-confirm-enabled-modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-semibold">
+          {{ (confirmUser()?.enabled ?? false) ? i18n.t('disable') : i18n.t('enable') }}
+        </h3>
+        <p class="mt-2 text-sm text-base-content/70">
+          {{ confirmUser()?.email ?? '' }}
+        </p>
+        <div class="modal-action">
+          <form method="dialog" class="flex gap-2">
+            <button class="btn btn-ghost" [disabled]="mutating()">{{ i18n.t('cancel') }}</button>
+          </form>
+          <button
+            type="button"
+            class="btn"
+            data-testid="admin-confirm-enabled-submit"
+            [class.btn-error]="confirmUser()?.enabled"
+            [class.btn-success]="!(confirmUser()?.enabled ?? false)"
+            [disabled]="mutating()"
+            (click)="submitToggleEnabled(confirmEnabledDialog)"
+          >
+            @if (mutating()) {
+              {{ i18n.t('saving') }}
+            } @else {
+              {{ (confirmUser()?.enabled ?? false) ? i18n.t('disable') : i18n.t('enable') }}
+            }
+          </button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <button
+      type="button"
+      class="btn btn-primary btn-sm"
+      data-testid="admin-create-user-open"
+      [disabled]="mutating()"
+      (click)="openCreateModal(createUserDialog)"
+    >
+      @if (mutating()) {
+        {{ i18n.t('saving') }}
+      } @else {
+        {{ i18n.t('createUser') }}
+      }
+    </button>
+  </div>
+
+  <app-inline-alert [message]="error()" variant="warning" [title]="i18n.t('warningTitle')" />
+
+  <app-loading-state [active]="loading()" [label]="i18n.t('loadingUsers')" size="md" skeleton="table" />
+
+  @if (!loading() && data()) {
+    @if (data()!.totalElements === 0) {
+      <div class="rounded-lg border border-dashed border-base-300 bg-base-100/60 px-6 py-10 text-center text-sm text-base-content/60">
+        {{ i18n.t('emptyUsers') }}
+      </div>
+    } @else {
+      <div class="overflow-x-auto rounded-lg border border-base-300/80 bg-base-100 shadow-sm">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th scope="col" class="align-bottom">
+                <app-sortable-th
+                  [label]="i18n.t('email')"
+                  columnKey="email"
+                  [activeKey]="sortColumn()"
+                  [direction]="sortDirection()"
+                  (sortActivate)="onSortColumn($event)"
+                />
+              </th>
+              <th scope="col" class="align-bottom">
+                <app-sortable-th
+                  [label]="i18n.t('enabled')"
+                  columnKey="enabled"
+                  [activeKey]="sortColumn()"
+                  [direction]="sortDirection()"
+                  (sortActivate)="onSortColumn($event)"
+                />
+              </th>
+              <th scope="col" class="align-bottom">
+                <app-sortable-th
+                  [label]="i18n.t('createdAt')"
+                  columnKey="createdAt"
+                  [activeKey]="sortColumn()"
+                  [direction]="sortDirection()"
+                  (sortActivate)="onSortColumn($event)"
+                />
+              </th>
+              <th scope="col" class="align-bottom">{{ i18n.t('roles') }}</th>
+              <th scope="col" class="align-bottom"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of visibleUsers(); track u.id) {
+              <tr>
+                <td class="font-mono text-sm">{{ u.email }}</td>
+                <td>{{ u.enabled ? i18n.t('yes') : i18n.t('no') }}</td>
+                <td class="font-mono text-xs">{{ u.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+                <td class="text-xs font-mono">{{ u.roles.join(', ') }}</td>
+                <td class="whitespace-nowrap">
+                  <div class="flex flex-wrap gap-2 justify-end">
+                    <button
+                      type="button"
+                      class="btn btn-xs"
+                      [attr.data-testid]="'admin-toggle-enabled-' + u.id"
+                      [class.btn-error]="u.enabled"
+                      [class.btn-success]="!u.enabled"
+                      [disabled]="mutating()"
+                      (click)="openConfirmEnabled(confirmEnabledDialog, u)"
+                    >
+                      {{ u.enabled ? i18n.t('disable') : i18n.t('enable') }}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-xs btn-outline"
+                      [attr.data-testid]="'admin-edit-roles-' + u.id"
+                      [disabled]="mutating()"
+                      (click)="openEditRoles(editRolesDialog, u)"
+                    >
+                      {{ i18n.t('editRoles') }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (data()!.totalElements > 0) {
+      <app-page-nav
+        [page]="page()"
+        [pageSize]="pageSize()"
+        [totalElements]="data()!.totalElements"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    }
+  }
+</div>
+

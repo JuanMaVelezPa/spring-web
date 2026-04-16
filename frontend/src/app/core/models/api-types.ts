@@ -1,3 +1,5 @@
+import type { components } from './openapi.generated';
+
 export interface ProblemDetail {
   type?: string;
   title?: string;
@@ -6,15 +8,16 @@ export interface ProblemDetail {
   instance?: string;
 }
 
-export interface Branch {
-  id: string;
-  code: string;
-  name: string;
-  city: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+type OpenApiBranch = components['schemas']['BranchResponse'];
+export type Branch = {
+  id: NonNullable<OpenApiBranch['id']>;
+  code: NonNullable<OpenApiBranch['code']>;
+  name: NonNullable<OpenApiBranch['name']>;
+  city: NonNullable<OpenApiBranch['city']>;
+  isActive: NonNullable<OpenApiBranch['isActive']>;
+  createdAt: NonNullable<OpenApiBranch['createdAt']>;
+  updatedAt: NonNullable<OpenApiBranch['updatedAt']>;
+};
 
 export interface PagedResponse<T> {
   content: T[];
@@ -24,8 +27,53 @@ export interface PagedResponse<T> {
   totalPages: number;
 }
 
-export interface CreateBranchPayload {
-  code: string;
-  name: string;
-  city: string;
-}
+export type CreateBranchPayload = components['schemas']['CreateBranchRequest'];
+
+export type UpdateBranchPayload = components['schemas']['UpdateBranchRequest'];
+
+type OpenApiLoginResponse = components['schemas']['LoginResponse'];
+export type LoginResponse = {
+  token: NonNullable<OpenApiLoginResponse['token']>;
+};
+
+export type LoginRequest = components['schemas']['LoginRequest'];
+
+type OpenApiMe = components['schemas']['MeResponse'];
+export type MeProfile = {
+  id: NonNullable<OpenApiMe['id']>;
+  email: NonNullable<OpenApiMe['email']>;
+  enabled: NonNullable<OpenApiMe['enabled']>;
+  lockedUntil: OpenApiMe['lockedUntil'] | null | undefined;
+  createdAt: NonNullable<OpenApiMe['createdAt']>;
+  roles: NonNullable<OpenApiMe['roles']>;
+};
+
+type OpenApiAdminUser = components['schemas']['AdminUserResponse'];
+export type AdminUser = {
+  id: NonNullable<OpenApiAdminUser['id']>;
+  email: NonNullable<OpenApiAdminUser['email']>;
+  enabled: NonNullable<OpenApiAdminUser['enabled']>;
+  lockedUntil: OpenApiAdminUser['lockedUntil'] | null | undefined;
+  createdAt: NonNullable<OpenApiAdminUser['createdAt']>;
+  roles: NonNullable<OpenApiAdminUser['roles']>;
+};
+
+type OpenApiAdminRole = components['schemas']['AdminRoleResponse'];
+export type AdminRole = {
+  id: NonNullable<OpenApiAdminRole['id']>;
+  name: NonNullable<OpenApiAdminRole['name']>;
+};
+
+export type CreateUserPayload = components['schemas']['CreateUserRequest'];
+export type SetUserRolesPayload = components['schemas']['SetUserRolesRequest'];
+export type SetUserEnabledPayload = components['schemas']['SetUserEnabledRequest'];
+
+type OpenApiAuditLog = components['schemas']['AdminAuditLogResponse'];
+export type AuditLogEntry = {
+  id: NonNullable<OpenApiAuditLog['id']>;
+  actorUserId: NonNullable<OpenApiAuditLog['actorUserId']>;
+  action: NonNullable<OpenApiAuditLog['action']>;
+  targetUserId: OpenApiAuditLog['targetUserId'] | null | undefined;
+  metadata: OpenApiAuditLog['metadata'] | null | undefined;
+  createdAt: NonNullable<OpenApiAuditLog['createdAt']>;
+};

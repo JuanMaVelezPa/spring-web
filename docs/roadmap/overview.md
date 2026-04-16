@@ -12,12 +12,19 @@ All implementation, code comments, commit messages, and documentation should be 
 - Clean Architecture: preserve boundaries between domain, application, infrastructure, and entrypoints.
 - Best Practices: tests, observability, security, clear docs, and reproducible environments.
 
-## 2) Scope Strategy
+## 2) Scope Strategy (numbered milestones + base versions)
 
-- Step 1: complete Backend Phase 1.
-- Step 2: complete Backend Phase 2.
-- Step 3: build a simple but polished Frontend (Angular latest + Signals + Tailwind + DaisyUI).
-- Step 4: connect Frontend to stable backend contracts.
+**Shipped sequence (v1.0):** **B1** → **B2** → **F1** → **F2** → **H1** (see [status.md](status.md)).
+
+| Code | Meaning |
+|------|---------|
+| **B1** | Backend “Phase 1” in [backend.md](backend.md) — API maturity |
+| **B2** | Backend “Phase 2” — security & operations |
+| **F1** | Frontend **first slice** — login + branch list + create (+ prefs, tests, OpenAPI typings) |
+| **F2** | Frontend **second slice** — branch detail + update + deactivate in the UI |
+| **H1** | Frontend **hardening** — refresh interceptor, Nginx CSP / security headers |
+
+**Future work:** do **not** tackle everything at once. Use [**evolution.md**](roadmap/evolution.md) — **waves**, **v1.1–v1.7**, backend + frontend slices per wave — then update [status.md](status.md) when a wave closes.
 
 This sequencing reduces risk and prevents UI work from masking API design issues.
 
@@ -64,10 +71,8 @@ spring-web/
 - Work in small vertical slices.
 - One feature = code + tests + docs + verification.
 - Avoid large "big bang" merges.
-- Suggested branch naming:
-  - `feat/backend-phase1-*`
-  - `feat/backend-phase2-*`
-  - `feat/frontend-*`
+- Suggested branch naming (align with **B1 / B2 / F1 / F2**):
+  - `feat/b1-*`, `feat/b2-*`, `feat/f1-*`, `feat/f2-*` (or legacy `feat/backend-phase1-*`, `feat/frontend-*`)
 
 ---
 
@@ -85,17 +90,20 @@ spring-web/
 
 ---
 
-## 9) Immediate Next Step
+## 9) Immediate next step
 
-**Current focus:** close **Frontend first slice** gaps (tests + E2E), then **second slice** (branch detail / update / deactivate) as needed.
+**v1.0** is complete (**B1, B2, F1, F2, H1**). **F3** is also complete. **v1.1 / IAM1** is **closed** for this template (identity, lockout, **`GET /api/v1/me`**, SPA **`/me`**). **v1.2 / IAM2** (admin API + admin UI) is **closed** in [**status.md**](status.md). Deferred items (phone/OAuth, registration, …) are listed in [**status.md — IAM**](status.md#iam-implementation-and-gaps-this-repo).
 
-Live checklist: [status.md](status.md).
+**Suggested focus:** **v1.1** is **closed** in this template (identity + lockout + **`/me`**). **v1.2** (admin + audit + method security) is implemented — next template wave is **IAM3+** per [**evolution.md**](evolution.md). Optionally git tag **`v1.1.0`** (see root `CHANGELOG.md`).
 
-Suggested next tasks:
+References:
 
-1. Add **frontend unit tests** for auth/preferences utilities and critical services.
-2. Add **one E2E smoke** (Playwright): login → paged list → create branch (happy path).
-3. Plan **second vertical slice** for branches (detail, update, deactivate) against existing API.
+1. [**status.md**](status.md) — **checklist**, IAM done vs gaps, verification commands.
+2. [**evolution.md**](evolution.md) — **waves**, **v1.x** template versions, BE+FE ordering.
+3. [auth-platform.md](auth-platform.md) — IAM design (**§1.1**, **§2.2**, **§2.3**).
+4. [frontend.md](frontend.md) — **F3** client cache (closed).
+5. **Stricter CSP** — [security.md](../security.md) (cross-cutting).
+6. **New domain features** — add a row to [status.md](status.md) and assign a **wave** in evolution.md.
 
 ### 9.1) Mandatory delivery format per phase
 
@@ -118,4 +126,4 @@ git push -u origin feat/backend-phase1-problem-details
 
 ---
 
-**Next:** [Backend phases](backend.md) · [Frontend phase](frontend.md)
+**Next:** [Evolution (v1.x waves)](roadmap/evolution.md) · [Backend phases](backend.md) · [Frontend phase](frontend.md) · [Status](roadmap/status.md)

@@ -1,9 +1,11 @@
 package com.jm.spring_web.application.security.port;
 
-public interface TokenProviderPort {
-    String issueAccessToken(String username);
+import java.util.List;
 
-    String issueRefreshToken(String username);
+public interface TokenProviderPort {
+    String issueAccessToken(String subject, List<String> roles);
+
+    String issueRefreshToken(String subject, List<String> roles);
 
     String extractSubjectFromAccessToken(String token);
 

@@ -2,6 +2,7 @@ package com.jm.spring_web.infrastructure.config;
 
 import com.jm.spring_web.infrastructure.security.JwtAuthenticationFilter;
 import com.jm.spring_web.infrastructure.security.JwtProperties;
+import com.jm.spring_web.infrastructure.security.LoginLockoutProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,14 +13,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -33,7 +33,8 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableMethodSecurity
+@EnableConfigurationProperties({JwtProperties.class, LoginLockoutProperties.class})
 public class SecurityConfig {
     @Value("${app.security.actuator-public:true}")
     private boolean actuatorPublic;
@@ -53,8 +54,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(
                             "/api/v1/auth/**",
+                            "/swagger-ui.html",
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
+                            "/v3/api-docs.yaml",
+                            "/webjars/**",
+                            "/favicon.ico",
                             "/actuator/health",
                             "/actuator/info")
                             .permitAll();
@@ -63,7 +68,8 @@ public class SecurityConfig {
                         auth.requestMatchers("/actuator/metrics/**", "/actuator/prometheus").permitAll();
                     }
 
-                    auth.requestMatchers("/api/v1/branches/**").hasRole("ADMIN");
+                    auth.requestMatchers("/api/v1/admin/**").hasRole("SUPER_ADMIN");
+                    auth.requestMatchers("/api/v1/branches/**").hasAnyRole("SUPER_ADMIN", "APP_ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -91,18 +97,6 @@ public class SecurityConfig {
                 "Forbidden",
                 "You do not have permission to access this resource",
                 objectMapper);
-    }
-
-    @Bean
-    UserDetailsService userDetailsService(
-            @Value("${security.default-user.username}") String username,
-            @Value("${security.default-user.password}") String password,
-            PasswordEncoder passwordEncoder) {
-        return new InMemoryUserDetailsManager(
-                User.withUsername(username)
-                        .password(passwordEncoder.encode(password))
-                        .roles("ADMIN")
-                        .build());
     }
 
     @Bean

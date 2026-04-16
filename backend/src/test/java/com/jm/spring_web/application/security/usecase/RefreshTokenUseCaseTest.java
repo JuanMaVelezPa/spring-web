@@ -2,17 +2,24 @@ package com.jm.spring_web.application.security.usecase;
 
 import com.jm.spring_web.application.common.exception.UnauthorizedException;
 import com.jm.spring_web.application.security.model.RefreshTokenCommand;
+import com.jm.spring_web.application.security.model.UserAccount;
 import com.jm.spring_web.application.security.port.TokenProviderPort;
+import com.jm.spring_web.application.security.port.UserDirectoryPort;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RefreshTokenUseCaseTest {
+    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     @Test
     void shouldIssueNewTokensWhenRefreshTokenIsValid() {
-        RefreshTokenUseCase useCase = new RefreshTokenUseCase(tokenProvider());
+        RefreshTokenUseCase useCase = new RefreshTokenUseCase(tokenProvider(), directory());
 
         var result = useCase.execute(new RefreshTokenCommand("refresh-token"));
 
@@ -22,7 +29,7 @@ class RefreshTokenUseCaseTest {
 
     @Test
     void shouldFailWhenRefreshTokenIsMissing() {
-        RefreshTokenUseCase useCase = new RefreshTokenUseCase(tokenProvider());
+        RefreshTokenUseCase useCase = new RefreshTokenUseCase(tokenProvider(), directory());
 
         assertThrows(UnauthorizedException.class, () -> useCase.execute(new RefreshTokenCommand("")));
     }
@@ -31,12 +38,12 @@ class RefreshTokenUseCaseTest {
     void shouldFailWhenRefreshTokenIsInvalid() {
         TokenProviderPort tokenProvider = new TokenProviderPort() {
             @Override
-            public String issueAccessToken(String username) {
+            public String issueAccessToken(String subject, List<String> roles) {
                 return "new-access-token";
             }
 
             @Override
-            public String issueRefreshToken(String username) {
+            public String issueRefreshToken(String subject, List<String> roles) {
                 return "new-refresh-token";
             }
 
@@ -50,7 +57,7 @@ class RefreshTokenUseCaseTest {
                 throw new RuntimeException("bad token");
             }
         };
-        RefreshTokenUseCase useCase = new RefreshTokenUseCase(tokenProvider);
+        RefreshTokenUseCase useCase = new RefreshTokenUseCase(tokenProvider, directory());
 
         assertThrows(UnauthorizedException.class, () -> useCase.execute(new RefreshTokenCommand("bad-token")));
     }
@@ -58,12 +65,12 @@ class RefreshTokenUseCaseTest {
     private TokenProviderPort tokenProvider() {
         return new TokenProviderPort() {
             @Override
-            public String issueAccessToken(String username) {
+            public String issueAccessToken(String subject, List<String> roles) {
                 return "new-access-token";
             }
 
             @Override
-            public String issueRefreshToken(String username) {
+            public String issueRefreshToken(String subject, List<String> roles) {
                 return "new-refresh-token";
             }
 
@@ -74,7 +81,24 @@ class RefreshTokenUseCaseTest {
 
             @Override
             public String extractSubjectFromRefreshToken(String token) {
-                return "admin";
+                return USER_ID.toString();
+            }
+        };
+    }
+
+    private UserDirectoryPort directory() {
+        return new UserDirectoryPort() {
+            @Override
+            public Optional<UserAccount> findByEmail(String email) {
+                return Optional.empty();
+            }
+
+            @Override
+            public Optional<UserAccount> findById(UUID id) {
+                if (USER_ID.equals(id)) {
+                    return Optional.of(new UserAccount(USER_ID, List.of("APP_ADMIN")));
+                }
+                return Optional.empty();
             }
         };
     }

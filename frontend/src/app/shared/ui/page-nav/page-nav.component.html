@@ -1,12 +1,15 @@
 <div
-  class="flex flex-col gap-3 rounded-lg border border-base-300/80 bg-base-100/50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+  class="flex flex-nowrap items-center justify-between gap-x-3 gap-y-2 overflow-x-auto rounded-lg border border-base-300/80 bg-base-100/50 px-3 py-2"
 >
-  <p class="text-center text-sm text-base-content/70 sm:text-left">{{ summary() }}</p>
-  <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
-    <label class="flex items-center gap-2 text-xs text-base-content/60">
+  <p class="min-w-0 shrink text-sm text-base-content/70" aria-live="polite">{{ summary() }}</p>
+  <div class="flex shrink-0 items-center gap-2">
+    <label
+      class="flex items-center gap-1.5 whitespace-nowrap text-xs text-base-content/60"
+      [attr.aria-label]="i18n.t('perPage')"
+    >
       <span>{{ i18n.t('perPage') }}</span>
       <select
-        class="select select-bordered select-xs max-w-[4.5rem]"
+        class="select select-bordered select-xs w-[4.25rem] px-1"
         [value]="pageSize()"
         (change)="onSizeChange($event)"
       >
@@ -15,10 +18,10 @@
         }
       </select>
     </label>
-    <div class="join border border-base-300 shadow-sm">
+    <div class="join shrink-0 border border-base-300 shadow-sm">
       <button
         type="button"
-        class="btn btn-sm join-item gap-1 px-3"
+        class="btn btn-sm join-item gap-1 px-2 sm:px-3"
         [disabled]="!canPrev()"
         (click)="prev()"
       >
@@ -27,7 +30,7 @@
       </button>
       <button
         type="button"
-        class="btn btn-sm join-item gap-1 px-3"
+        class="btn btn-sm join-item gap-1 px-2 sm:px-3"
         [disabled]="!canNext()"
         (click)="next()"
       >

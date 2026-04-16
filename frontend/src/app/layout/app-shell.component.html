@@ -8,14 +8,28 @@
       </a>
     </div>
     <div class="ml-auto flex flex-none flex-wrap items-center justify-end gap-1 sm:gap-2">
-      <app-language-switcher />
-      <app-theme-toggle />
-      <button type="button" class="btn btn-outline btn-sm gap-2" [disabled]="loggingOut()" (click)="logout()">
-        @if (loggingOut()) {
-          <span class="loading loading-spinner loading-xs"></span>
-        }
-        {{ i18n.t('logout') }}
-      </button>
+      @if (auth.hasRole('SUPER_ADMIN')) {
+        <a
+          routerLink="/admin/users"
+          class="btn btn-ghost btn-sm"
+          [attr.aria-label]="i18n.t('admin')"
+          [attr.title]="i18n.t('admin')"
+        >
+          {{ i18n.t('admin') }}
+        </a>
+      }
+      <a
+        routerLink="/me"
+        class="btn btn-ghost btn-sm"
+        [attr.aria-label]="i18n.t('myProfileTitle')"
+        [attr.title]="i18n.t('myProfileTitle')"
+      >
+        {{ i18n.t('myProfileNav') }}
+      </a>
+      <app-settings-dropdown variant="account" (logoutRequested)="logout()" />
+      @if (loggingOut()) {
+        <app-loading-spinner size="sm" />
+      }
     </div>
   </header>
   <div class="container mx-auto max-w-5xl flex-1 px-3 py-4 sm:px-4">

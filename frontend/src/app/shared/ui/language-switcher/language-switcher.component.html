@@ -1,11 +1,24 @@
-<label class="select select-bordered select-sm w-full">
-  <span class="label sr-only">{{ i18n.t('language') }}</span>
-  <select
-    [value]="i18n.locale()"
-    [attr.aria-label]="i18n.t('language')"
-    (change)="onLocaleChange($event)"
+<div class="flex gap-1" role="group" [attr.aria-label]="i18n.t('language')">
+  <button
+    type="button"
+    class="btn btn-xs flex-1 border-base-300 font-medium tabular-nums"
+    [class.btn-primary]="i18n.locale() === 'en'"
+    [class.btn-ghost]="i18n.locale() !== 'en'"
+    [attr.aria-pressed]="i18n.locale() === 'en'"
+    [attr.aria-label]="i18n.t('languageEnglish')"
+    (click)="i18n.setLocale('en')"
   >
-    <option value="en">{{ i18n.t('languageEnglish') }}</option>
-    <option value="es">{{ i18n.t('languageSpanish') }}</option>
-  </select>
-</label>
+    EN
+  </button>
+  <button
+    type="button"
+    class="btn btn-xs flex-1 border-base-300 font-medium tabular-nums"
+    [class.btn-primary]="i18n.locale() === 'es'"
+    [class.btn-ghost]="i18n.locale() !== 'es'"
+    [attr.aria-pressed]="i18n.locale() === 'es'"
+    [attr.aria-label]="i18n.t('languageSpanish')"
+    (click)="i18n.setLocale('es')"
+  >
+    ES
+  </button>
+</div>

@@ -3,6 +3,8 @@ package com.jm.spring_web.infrastructure.security;
 import io.jsonwebtoken.security.WeakKeyException;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -16,7 +18,7 @@ class JwtTokenServiceTest {
                 7200,
                 "REFRESH_TOKEN"));
 
-        String token = service.issueAccessToken("admin");
+        String token = service.issueAccessToken("admin", List.of("APP_ADMIN"));
 
         assertEquals("admin", service.extractSubjectFromAccessToken(token));
     }
@@ -39,7 +41,7 @@ class JwtTokenServiceTest {
                 1,
                 2,
                 "REFRESH_TOKEN"));
-        String token = service.issueAccessToken("admin");
+        String token = service.issueAccessToken("admin", List.of("APP_ADMIN"));
 
         Thread.sleep(1200);
 
@@ -53,7 +55,7 @@ class JwtTokenServiceTest {
                 3600,
                 7200,
                 "REFRESH_TOKEN"));
-        String refreshToken = service.issueRefreshToken("admin");
+        String refreshToken = service.issueRefreshToken("admin", List.of("APP_ADMIN"));
 
         assertThrows(RuntimeException.class, () -> service.extractSubjectFromAccessToken(refreshToken));
     }

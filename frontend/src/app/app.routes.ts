@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { guestGuard } from './core/auth/guest.guard';
+import { roleGuard } from './core/auth/role.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     canActivate: [guestGuard],
+    data: { titleKey: 'loginTitle' },
     loadComponent: () => import('./features/auth/login.component').then((m) => m.LoginComponent),
   },
   {
@@ -15,14 +17,18 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'branches' },
       {
-        path: 'branches',
-        loadComponent: () =>
-          import('./features/branches/branch-list.component').then((m) => m.BranchListComponent),
+        path: 'admin',
+        canActivate: [roleGuard(['SUPER_ADMIN'])],
+        loadChildren: () => import('./features/admin/admin.routes').then((m) => m.adminRoutes),
       },
       {
-        path: 'branches/new',
-        loadComponent: () =>
-          import('./features/branches/branch-create.component').then((m) => m.BranchCreateComponent),
+        path: 'branches',
+        loadChildren: () => import('./features/branches/branches.routes').then((m) => m.branchesRoutes),
+      },
+      {
+        path: 'me',
+        data: { titleKey: 'myProfileTitle' },
+        loadComponent: () => import('./features/account/my-profile.component').then((m) => m.MyProfileComponent),
       },
     ],
   },

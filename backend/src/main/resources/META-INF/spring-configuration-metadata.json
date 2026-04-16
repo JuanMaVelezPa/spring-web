@@ -59,6 +59,16 @@
       "name": "security.default-user.password",
       "type": "java.lang.String",
       "description": "Default in-memory user password."
+    },
+    {
+      "name": "app.security.login.max-failed-attempts",
+      "type": "java.lang.Integer",
+      "description": "Failed password logins before the account is temporarily locked (iam_user.locked_until)."
+    },
+    {
+      "name": "app.security.login.lockout-minutes",
+      "type": "java.lang.Integer",
+      "description": "Duration of temporary lockout after exceeding max failed password attempts."
     }
   ]
 }

@@ -1,0 +1,16 @@
+<ng-content />
+@if (busy()) {
+  <div
+    class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-[inherit] bg-base-100/85 px-4 backdrop-blur-[2px] motion-safe:transition-opacity"
+    aria-live="polite"
+    aria-busy="true"
+    role="status"
+  >
+    <app-loading-spinner [size]="spinnerSize() === 'sm' ? 'sm' : 'md'" />
+    @if (label()) {
+      <p class="max-w-[16rem] text-center text-sm font-medium tracking-wide text-base-content/75">
+        {{ label() }}
+      </p>
+    }
+  </div>
+}

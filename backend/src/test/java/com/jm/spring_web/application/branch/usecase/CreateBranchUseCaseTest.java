@@ -2,6 +2,7 @@ package com.jm.spring_web.application.branch.usecase;
 
 import com.jm.spring_web.application.branch.model.CreateBranchCommand;
 import com.jm.spring_web.application.branch.port.BranchRepositoryPort;
+import com.jm.spring_web.application.common.pagination.PageQuery;
 import com.jm.spring_web.application.common.exception.ConflictException;
 import com.jm.spring_web.application.common.pagination.PageSlice;
 import com.jm.spring_web.application.notification.model.OutboxEventCommand;
@@ -85,11 +86,11 @@ class CreateBranchUseCaseTest {
         }
 
         @Override
-        public PageSlice<Branch> findAll(int page, int pageSize) {
+        public PageSlice<Branch> findAll(PageQuery query) {
             if (branch == null) {
                 return new PageSlice<>(List.of(), 0);
             }
-            if (page == 0) {
+            if (query.page() == 0) {
                 return new PageSlice<>(List.of(branch), 1);
             }
             return new PageSlice<>(List.of(), 1);

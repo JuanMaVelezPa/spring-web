@@ -1,0 +1,70 @@
+<div class="dropdown dropdown-end">
+  @if (variant() === 'gear') {
+    <button
+      type="button"
+      tabindex="0"
+      class="btn btn-ghost btn-circle btn-sm"
+      [attr.aria-label]="i18n.t('settings')"
+      [attr.title]="i18n.t('settings')"
+      data-testid="settings-menu-trigger"
+    >
+      <app-icon name="cog" />
+    </button>
+  } @else {
+    <button
+      type="button"
+      tabindex="0"
+      class="btn btn-ghost h-auto min-h-10 max-w-[min(100%,16rem)] gap-2 px-2 sm:max-w-xs"
+      [attr.aria-label]="i18n.t('settings')"
+      [attr.title]="auth.username() ?? ''"
+      data-testid="account-menu-trigger"
+    >
+      <app-icon name="user" sizeClass="h-5 w-5 shrink-0" />
+      <span class="hidden min-w-0 truncate text-sm font-medium sm:inline">{{ auth.username() | displayUsername }}</span>
+      <app-icon name="chevron-down" sizeClass="h-4 w-4 shrink-0 opacity-70" />
+    </button>
+  }
+  <div
+    tabindex="0"
+    class="dropdown-content z-[100] mt-2 w-56 rounded-box border border-base-300 bg-base-100 p-3 shadow-lg outline-none"
+  >
+    <p class="mb-1.5 text-xs font-medium uppercase tracking-wide text-base-content/50">
+      {{ i18n.t('language') }}
+    </p>
+    <app-language-switcher />
+    <p class="mb-1.5 mt-3 text-xs font-medium uppercase tracking-wide text-base-content/50">
+      {{ i18n.t('appearance') }}
+    </p>
+    <div class="flex gap-1">
+      <button
+        type="button"
+        class="btn btn-xs flex-1 border-base-300"
+        [class.btn-primary]="prefs.theme() === 'light'"
+        [class.btn-ghost]="prefs.theme() !== 'light'"
+        (click)="prefs.setTheme('light')"
+      >
+        {{ i18n.t('themeLight') }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-xs flex-1 border-base-300"
+        [class.btn-primary]="prefs.theme() === 'dark'"
+        [class.btn-ghost]="prefs.theme() !== 'dark'"
+        (click)="prefs.setTheme('dark')"
+      >
+        {{ i18n.t('themeDark') }}
+      </button>
+    </div>
+    @if (variant() === 'account') {
+      <div class="divider my-2"></div>
+      <button
+        type="button"
+        class="btn btn-outline btn-error btn-sm w-full gap-2"
+        data-testid="account-menu-logout"
+        (click)="requestLogout()"
+      >
+        {{ i18n.t('logout') }}
+      </button>
+    }
+  </div>
+</div>

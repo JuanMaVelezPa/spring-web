@@ -4,44 +4,52 @@
   >
     <div class="flex items-start justify-between gap-3 sm:gap-4">
       <h1 class="min-w-0 text-2xl font-semibold leading-tight">{{ i18n.t('loginTitle') }}</h1>
-      <div class="shrink-0 pt-0.5 flex items-center gap-2">
-        <app-language-switcher />
-        <app-theme-toggle />
+      <div class="shrink-0 pt-0.5">
+        <app-settings-dropdown />
       </div>
     </div>
     <app-inline-alert [message]="sessionNotice()" variant="info" [title]="i18n.t('sessionTitle')" />
     <app-inline-alert [message]="error()" variant="error" [title]="i18n.t('signInFailed')" />
-    <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
-      <label class="form-control w-full">
-        <span class="label-text">{{ i18n.t('username') }}</span>
-        <input
-          class="input input-bordered w-full"
-          type="text"
-          formControlName="username"
-          autocomplete="username"
-          data-testid="login-username"
-        />
-      </label>
-      <label class="form-control w-full">
-        <span class="label-text">{{ i18n.t('password') }}</span>
-        <input
-          class="input input-bordered w-full"
-          type="password"
-          formControlName="password"
-          autocomplete="current-password"
-          data-testid="login-password"
-        />
-      </label>
-      <app-loading-state [active]="submitting()" [label]="i18n.t('signingIn')" size="sm" />
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="form.invalid || submitting()"
-        data-testid="login-submit"
-      >
-        {{ i18n.t('login') }}
-      </button>
-    </form>
+    <app-busy-section
+      class="rounded-2xl"
+      [busy]="submitting()"
+      [label]="i18n.t('signingIn')"
+      spinnerSize="sm"
+    >
+      <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
+        <label class="form-control w-full">
+          <span class="label-text">{{ i18n.t('username') }}</span>
+          <input
+            class="input input-bordered w-full"
+            type="email"
+            formControlName="username"
+            autocomplete="email"
+            data-testid="login-username"
+          />
+        </label>
+        <label class="form-control w-full">
+          <span class="label-text">{{ i18n.t('password') }}</span>
+          <input
+            class="input input-bordered w-full"
+            type="password"
+            formControlName="password"
+            autocomplete="current-password"
+            data-testid="login-password"
+          />
+        </label>
+        <button
+          type="submit"
+          class="btn btn-primary gap-2"
+          [disabled]="form.invalid || submitting()"
+          data-testid="login-submit"
+        >
+          @if (submitting()) {
+            <app-loading-spinner size="xs" />
+          }
+          {{ i18n.t('login') }}
+        </button>
+      </form>
+    </app-busy-section>
   </div>
   <app-footer />
 </div>

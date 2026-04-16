@@ -56,8 +56,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required in .env}
       JWT_EXPIRATION_SECONDS: ${JWT_EXPIRATION_SECONDS:-3600}
       APP_SECURITY_ACTUATOR_PUBLIC: ${APP_SECURITY_ACTUATOR_PUBLIC:-true}
-      APP_USER: ${APP_USER:-admin}
-      APP_PASSWORD: ${APP_PASSWORD:?APP_PASSWORD is required in .env}
+      APP_SUPER_ADMIN_EMAIL: ${APP_SUPER_ADMIN_EMAIL:-admin@example.com}
+      APP_SUPER_ADMIN_PASSWORD: ${APP_SUPER_ADMIN_PASSWORD:?APP_SUPER_ADMIN_PASSWORD is required in .env}
     ports:
       - "8081:8080"
     healthcheck:

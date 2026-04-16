@@ -1,13 +1,67 @@
 @if (active()) {
-  <div
-    class="flex flex-col items-center justify-center gap-3"
-    [class]="paddingClass()"
-    aria-live="polite"
-    aria-busy="true"
-  >
-    <span [class]="spinnerClass()"></span>
-    @if (label()) {
-      <p class="text-sm tracking-wide text-base-content/60">{{ label() }}</p>
+  <div class="flex w-full flex-col gap-4" role="status" aria-live="polite" aria-busy="true">
+    @switch (skeleton()) {
+      @case ('table') {
+        <div
+          class="overflow-hidden rounded-lg border border-base-300/80 bg-base-100/50 shadow-sm motion-safe:animate-pulse"
+        >
+          <div class="h-12 bg-gradient-to-r from-base-300/90 via-base-200/80 to-base-300/90"></div>
+          @for (row of tablePlaceholders; track row) {
+            <div
+              class="h-12 border-t border-base-300/50 bg-base-100/40"
+              [class.opacity-80]="row > 4"
+            ></div>
+          }
+        </div>
+      }
+      @case ('card') {
+        <div
+          class="mx-auto w-full max-w-md motion-safe:animate-pulse rounded-2xl border border-base-300/70 bg-base-100/80 p-8 shadow-inner"
+        >
+          <div class="mx-auto mb-5 h-7 w-28 rounded-full bg-base-300/90"></div>
+          <div class="mx-auto mb-3 h-4 w-36 rounded bg-base-300/70"></div>
+          <div class="mx-auto mb-2 h-9 max-w-[85%] rounded-lg bg-base-300/80"></div>
+          <div class="mx-auto mb-8 h-4 w-2/5 rounded bg-base-300/60"></div>
+          <div class="h-24 rounded-xl bg-base-200/80"></div>
+          <div class="mx-auto mt-6 flex justify-center gap-2">
+            <div class="h-10 w-24 rounded-lg bg-base-300/70"></div>
+            <div class="h-10 w-24 rounded-lg bg-base-300/50"></div>
+          </div>
+        </div>
+      }
+      @case ('form') {
+        <div
+          class="motion-safe:animate-pulse rounded-xl border border-base-300/70 bg-base-100/60 p-5 shadow-sm"
+        >
+          <div class="mb-4 h-4 w-28 rounded bg-base-300/80"></div>
+          <div class="mb-6 h-12 w-full rounded-lg bg-base-300/60"></div>
+          <div class="mb-4 h-4 w-24 rounded bg-base-300/80"></div>
+          <div class="mb-6 h-12 w-full rounded-lg bg-base-300/60"></div>
+          <div class="mb-4 h-4 w-20 rounded bg-base-300/80"></div>
+          <div class="mb-8 h-12 w-full rounded-lg bg-base-300/60"></div>
+          <div class="h-11 w-40 rounded-lg bg-primary/25"></div>
+        </div>
+      }
+      @default {
+        <div
+          class="flex flex-col items-center justify-center gap-3"
+          [class]="paddingClass()"
+        >
+          <app-loading-spinner [size]="spinnerSize()" />
+          @if (label()) {
+            <p class="text-sm font-medium tracking-wide text-base-content/65">{{ label() }}</p>
+          }
+        </div>
+      }
+    }
+
+    @if (skeleton() !== 'none') {
+      <div class="flex items-center justify-center gap-2 text-sm text-base-content/65">
+        <app-loading-spinner size="sm" />
+        @if (label()) {
+          <span class="font-medium tracking-wide">{{ label() }}</span>
+        }
+      </div>
     }
   </div>
 }

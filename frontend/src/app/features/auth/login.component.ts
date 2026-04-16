@@ -6,11 +6,12 @@ import { finalize, map } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { problemDetailMessage } from '../../core/util/http-error';
+import { isValidEmail } from '../../core/validation/account-validation';
 import { AppFooterComponent } from '../../shared/footer/app-footer.component';
+import { BusySectionComponent } from '../../shared/ui/busy-section/busy-section.component';
 import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
-import { LanguageSwitcherComponent } from '../../shared/ui/language-switcher/language-switcher.component';
-import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-state.component';
-import { ThemeToggleComponent } from '../../shared/ui/theme-toggle/theme-toggle.component';
+import { LoadingSpinnerComponent } from '../../shared/ui/loading-spinner/loading-spinner.component';
+import { SettingsDropdownComponent } from '../../shared/ui/settings-dropdown/settings-dropdown.component';
 
 @Component({
   selector: 'app-login',
@@ -18,9 +19,9 @@ import { ThemeToggleComponent } from '../../shared/ui/theme-toggle/theme-toggle.
     ReactiveFormsModule,
     AppFooterComponent,
     InlineAlertComponent,
-    LoadingStateComponent,
-    ThemeToggleComponent,
-    LanguageSwitcherComponent,
+    BusySectionComponent,
+    LoadingSpinnerComponent,
+    SettingsDropdownComponent,
   ],
   templateUrl: './login.component.html',
 })
@@ -44,7 +45,7 @@ export class LoginComponent {
   );
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', Validators.required],
+    username: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
 
@@ -55,6 +56,10 @@ export class LoginComponent {
     this.error.set(null);
     this.submitting.set(true);
     const { username, password } = this.form.getRawValue();
+    if (!isValidEmail(username)) {
+      this.error.set(this.i18n.t('invalidEmail'));
+      return;
+    }
     this.auth
       .login(username, password)
       .pipe(finalize(() => this.submitting.set(false)))

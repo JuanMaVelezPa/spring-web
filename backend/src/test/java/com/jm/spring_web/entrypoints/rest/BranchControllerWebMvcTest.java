@@ -1,5 +1,6 @@
 package com.jm.spring_web.entrypoints.rest;
 
+import com.jm.spring_web.application.common.pagination.PageQuery;
 import com.jm.spring_web.application.branch.model.BranchResult;
 import com.jm.spring_web.application.common.pagination.PageResult;
 import com.jm.spring_web.application.branch.usecase.CreateBranchUseCase;
@@ -8,6 +9,7 @@ import com.jm.spring_web.application.branch.usecase.GetBranchUseCase;
 import com.jm.spring_web.application.branch.usecase.ListBranchesUseCase;
 import com.jm.spring_web.application.branch.usecase.UpdateBranchUseCase;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,10 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-        "security.default-user.username=admin",
-        "security.default-user.password=admin123"
-})
 class BranchControllerWebMvcTest {
     @Autowired
     private MockMvc mockMvc;
@@ -65,9 +63,9 @@ class BranchControllerWebMvcTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = "APP_ADMIN")
     void shouldReturnPagedListWhenAuthenticated() throws Exception {
-        Mockito.when(listBranchesUseCase.execute(0, 20)).thenReturn(new PageResult<>(
+        Mockito.when(listBranchesUseCase.execute(ArgumentMatchers.any(PageQuery.class))).thenReturn(new PageResult<>(
                 List.of(new BranchResult(
                         UUID.randomUUID(),
                         "BR001",
@@ -78,7 +76,7 @@ class BranchControllerWebMvcTest {
                         LocalDateTime.now())),
                 1,
                 0,
-                20,
+                10,
                 1));
 
         mockMvc.perform(get("/api/v1/branches"))
@@ -86,19 +84,26 @@ class BranchControllerWebMvcTest {
                 .andExpect(jsonPath("$.content[0].code").value("BR001"))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.page").value(0))
-                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.size").value(10))
                 .andExpect(jsonPath("$.totalPages").value(1));
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = "APP_ADMIN")
     void shouldReturnBadRequestWhenPageSizeExceedsMax() throws Exception {
         mockMvc.perform(get("/api/v1/branches").param("size", "101"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = "APP_ADMIN")
+    void shouldReturnBadRequestWhenSortFieldInvalid() throws Exception {
+        mockMvc.perform(get("/api/v1/branches").param("sort", "unknown,asc"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "APP_ADMIN")
     void shouldReturnBadRequestWhenCreatePayloadIsInvalid() throws Exception {
         mockMvc.perform(post("/api/v1/branches")
                         .contentType(MediaType.APPLICATION_JSON)
