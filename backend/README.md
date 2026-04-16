@@ -16,6 +16,40 @@ Spring Boot **4** service (Java **25**, Gradle). Clean Architecture: `domain` �
 - PostgreSQL, Flyway, Spring Security
 - Apache Kafka, Micrometer, Actuator
 
+## Database migrations (Flyway)
+
+Schema changes live **in this module** next to the code that uses them — same repo, same review, same CI. Configuration: `spring.flyway.locations=classpath:db/migration` in `application.properties`.
+
+| Location | Role |
+|----------|------|
+| `src/main/resources/db/migration/` | SQL scripts Flyway applies on startup (PostgreSQL). |
+
+### Versioned migrations (`V__`)
+
+- **Naming:** `V{version}__{short_description}.sql` — e.g. `V3__add_user_roles.sql`. Use a **single increasing version** per new file (integer or with underscores per [Flyway rules](https://documentation.red-gate.com/flyway)).
+- **Executed once** per database; Flyway records them in `flyway_schema_history`.
+- **Do not edit** a `V*` script that has already been applied in **shared** environments (dev/staging/prod). Fix forward with a **new** `V*` migration (`ALTER`, `DROP`, data backfill, etc.). Editing old files is only safe on **throwaway local DBs** before anyone else applies them.
+
+### Repeatable migrations (`R__`)
+
+- **Naming:** `R__{name}.sql` — re-run when the file **checksum** changes (e.g. redefine a `VIEW` or `FUNCTION`).
+- Use for definitions that are **idempotent** and fully replaced each time, not for one-off data fixes.
+
+### What to put in one file
+
+- Prefer **one migration per coherent change** (feature or ticket): e.g. new tables + indexes + FKs needed together. Splitting “one table per file” is optional; splitting unrelated changes into one giant file hurts review.
+- **Tables, indexes, constraints:** usual content of `V__` scripts.
+- **Functions, triggers:** same folder; order matters — create tables in an earlier `V` than triggers that reference them. For frequently edited routines, consider `R__` if appropriate.
+
+### PostgreSQL notes
+
+- There are no Oracle-style **packages**; use **schemas** (`CREATE SCHEMA`) or clear naming under `public`.
+- Prefer explicit **`IF NOT EXISTS`** only where Flyway semantics allow; rely on **versioned** scripts for deterministic history.
+
+### Tests and local dev
+
+- Tests that need a real schema use the same Flyway-managed schema (e.g. Testcontainers) so migrations stay the **single source of truth**.
+
 ## Run with Docker (full stack)
 
 From **repo root**:
@@ -124,6 +158,7 @@ RUN_ALERTMANAGER_TEST=true ./gradlew test --tests AlertmanagerDiscordIntegration
 ```text
 backend/
   src/main/java/com/jm/spring_web/
+  src/main/resources/db/migration/   # Flyway SQL (see "Database migrations")
   build.gradle
   Dockerfile    # Spring Boot only (compose: build.context ./backend)
 ```

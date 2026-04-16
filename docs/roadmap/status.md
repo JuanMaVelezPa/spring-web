@@ -2,7 +2,11 @@
 
 Living checklist: update when a milestone closes. Technical detail stays in module READMEs.
 
+**Ordered evolution (versions, waves, BE+FE together):** [**evolution.md**](evolution.md) — read this first for **what to do next** and **v1.x** base template bumps.
+
 ## Delivery timeline (read this first)
+
+### Done — **v1.0** baseline
 
 | Step | Code | Scope | Status |
 |------|------|--------|--------|
@@ -12,7 +16,19 @@ Living checklist: update when a milestone closes. Technical detail stays in modu
 | **4** | **F2** | Frontend — Second slice: branch **detail + update + deactivate** (API was already in B1) | **Done** |
 | **5** | **H1** | Frontend **hardening**: silent **refresh** interceptor + **CSP** / security headers on Nginx (`web`) | **Done** |
 
-**Optional next:** new product milestones (new aggregates, integrations) — add a new row here when scope grows; see [security.md](../security.md) for ongoing practices.
+### Planned — map to [evolution.md](evolution.md)
+
+| Version | Wave | Codes (summary) | Status |
+|---------|------|-----------------|--------|
+| **v1.1** | 1 | **IAM1** | Planned |
+| **v1.2** | 2 | **IAM2**, **IAM3** | Planned |
+| **v1.3** | 3 | **F3** | Planned |
+| **v1.4** | 4 | **IAM4** | Planned |
+| **v1.5** | 5 | **IAM5** | Planned |
+| **v1.6** | 6 | **IAM6** | Planned |
+| **v1.7** | 7 | **IAM7** | Planned |
+
+Detail per milestone: [auth-platform.md](auth-platform.md), [frontend.md](frontend.md). Cross-cutting: [security.md](../security.md).
 
 ---
 

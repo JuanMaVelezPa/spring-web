@@ -6,7 +6,7 @@ Portfolio **full-stack** project: **Spring Boot** API (`backend/`), **Angular** 
 |------------|-------------|
 | [backend/README.md](backend/README.md) | API, Docker, security matrix, tests, Gradle |
 | [frontend/README.md](frontend/README.md) | Angular dev server, proxy, UI stack |
-| [docs/README.md](docs/README.md) | **Roadmap** (phased plan) + **Postman** + [security notes](docs/security.md) |
+| [docs/README.md](docs/README.md) | **Roadmap** + [**evolution (v1.x waves)**](docs/roadmap/evolution.md) + [IAM](docs/roadmap/auth-platform.md) + **Postman** + [security](docs/security.md) |
 
 ## Repository layout
 
@@ -14,7 +14,7 @@ Portfolio **full-stack** project: **Spring Boot** API (`backend/`), **Angular** 
 backend/           # Spring Boot (Gradle); build output: backend/build/
 frontend/          # Angular SPA
 docs/
-  roadmap/         # Phased plan (overview, backend, frontend)
+  roadmap/         # Phased plan, IAM (auth-platform.md), backend/frontend phases
   postman/         # Postman collection (shared API contract)
 monitoring/        # Prometheus, Grafana, Alertmanager, …
 docker-compose.yml # Root: separate services (e.g. API `app`, Nginx `web`, Prometheus, Kafka, …)

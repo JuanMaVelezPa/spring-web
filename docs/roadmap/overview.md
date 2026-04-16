@@ -12,19 +12,19 @@ All implementation, code comments, commit messages, and documentation should be 
 - Clean Architecture: preserve boundaries between domain, application, infrastructure, and entrypoints.
 - Best Practices: tests, observability, security, clear docs, and reproducible environments.
 
-## 2) Scope Strategy (numbered milestones)
+## 2) Scope Strategy (numbered milestones + base versions)
 
-Use **one clear sequence** everywhere (see [status.md](status.md)):
+**Shipped sequence (v1.0):** **B1** → **B2** → **F1** → **F2** → **H1** (see [status.md](status.md)).
 
-| Order | Code | Meaning |
-|-------|------|---------|
-| 1 | **B1** | Backend “Phase 1” in [backend.md](backend.md) — API maturity |
-| 2 | **B2** | Backend “Phase 2” — security & operations |
-| 3 | **F1** | Frontend **first slice** — login + branch list + create (+ prefs, tests, OpenAPI typings) |
-| 4 | **F2** | Frontend **second slice** — branch detail + update + deactivate in the UI |
-| 5 | **H1** | Frontend **hardening** — refresh interceptor, Nginx CSP / security headers |
+| Code | Meaning |
+|------|---------|
+| **B1** | Backend “Phase 1” in [backend.md](backend.md) — API maturity |
+| **B2** | Backend “Phase 2” — security & operations |
+| **F1** | Frontend **first slice** — login + branch list + create (+ prefs, tests, OpenAPI typings) |
+| **F2** | Frontend **second slice** — branch detail + update + deactivate in the UI |
+| **H1** | Frontend **hardening** — refresh interceptor, Nginx CSP / security headers |
 
-**After H1:** stricter CSP/TLS policies or new product milestones — add rows to [status.md](status.md) when scope grows.
+**Future work:** do **not** tackle everything at once. Use [**evolution.md**](roadmap/evolution.md) — **waves**, **v1.1–v1.7**, backend + frontend slices per wave — then update [status.md](status.md) when a wave closes.
 
 This sequencing reduces risk and prevents UI work from masking API design issues.
 
@@ -92,12 +92,15 @@ spring-web/
 
 ## 9) Immediate Next Step
 
-**B1, B2, F1, F2, and H1** are complete for the current branch UI + hardening slice. Live checklist: [status.md](status.md).
+**v1.0** is complete (**B1, B2, F1, F2, H1**). Next increments: [**evolution.md**](roadmap/evolution.md) (**Wave 1 → v1.1** starts with **IAM1**).
 
-Suggested **optional** next work (pick by learning goal):
+References:
 
-1. **Stricter CSP** (nonces, remove `'unsafe-inline'` for `style-src` if feasible) — see [security.md](../security.md).
-2. **New domain features** (new aggregates, integrations) — add a **new** milestone row in [status.md](status.md).
+1. [**evolution.md**](roadmap/evolution.md) — **waves**, **v1.x** template versions, BE+FE ordering.
+2. [auth-platform.md](roadmap/auth-platform.md) — IAM design (**§1.1**, **§2.2**, **§2.3**).
+3. [frontend.md](roadmap/frontend.md) — **F3** client cache (scheduled in **v1.3**).
+4. **Stricter CSP** — [security.md](../security.md) (cross-cutting).
+5. **New domain features** — add a row to [status.md](status.md) and assign a **wave** in evolution.md.
 
 ### 9.1) Mandatory delivery format per phase
 
@@ -120,4 +123,4 @@ git push -u origin feat/backend-phase1-problem-details
 
 ---
 
-**Next:** [Backend phases](backend.md) · [Frontend phase](frontend.md)
+**Next:** [Evolution (v1.x waves)](roadmap/evolution.md) · [Backend phases](backend.md) · [Frontend phase](frontend.md) · [Status](roadmap/status.md)
