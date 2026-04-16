@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { guestGuard } from './core/auth/guest.guard';
+import { roleGuard } from './core/auth/role.guard';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,25 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/app-shell.component').then((m) => m.AppShellComponent),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'branches' },
+      {
+        path: 'admin',
+        canActivate: [roleGuard(['SUPER_ADMIN'])],
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'users' },
+          {
+            path: 'users',
+            data: { titleKey: 'adminUsersTitle' },
+            loadComponent: () =>
+              import('./features/admin/admin-users.component').then((m) => m.AdminUsersComponent),
+          },
+          {
+            path: 'roles',
+            data: { titleKey: 'adminRolesTitle' },
+            loadComponent: () =>
+              import('./features/admin/admin-roles.component').then((m) => m.AdminRolesComponent),
+          },
+        ],
+      },
       {
         path: 'branches',
         data: { titleKey: 'branchesTitle' },

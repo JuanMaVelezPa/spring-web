@@ -11,6 +11,8 @@ export const ApiPaths = {
   authLogout: apiPath('/api/v1/auth/logout'),
   authRefresh: apiPath('/api/v1/auth/refresh'),
   branches: apiPath('/api/v1/branches'),
+  adminRoles: apiPath('/api/v1/admin/roles'),
+  adminUsers: apiPath('/api/v1/admin/users'),
 } as const;
 
 /** Resolves `GET|PUT /api/v1/branches/{id}` — must stay aligned with OpenAPI `paths`. */

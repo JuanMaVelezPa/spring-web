@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiPaths } from '../api/api-paths';
 import { API_BASE_URL } from '../config/api-base-url.token';
 import type { LoginRequest, LoginResponse } from '../models/api-types';
 import { apiUrl } from '../util/api-url';
+import { tryParseJwtPayload } from '../util/jwt';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
   readonly token = signal<string | null>(null);
   /** Display name from last successful login (memory only; refreshed with access token lifecycle). */
   readonly username = signal<string | null>(null);
+  readonly roles = computed(() => tryParseJwtPayload(this.token())?.roles ?? []);
 
   login(username: string, password: string): Observable<LoginResponse> {
     const body: LoginRequest = { username, password };
@@ -36,5 +38,9 @@ export class AuthService {
   clearSession(): void {
     this.token.set(null);
     this.username.set(null);
+  }
+
+  hasRole(role: string): boolean {
+    return this.roles().includes(role);
   }
 }

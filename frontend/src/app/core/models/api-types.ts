@@ -37,3 +37,23 @@ export type LoginResponse = {
 };
 
 export type LoginRequest = components['schemas']['LoginRequest'];
+
+type OpenApiAdminUser = components['schemas']['AdminUserResponse'];
+export type AdminUser = {
+  id: NonNullable<OpenApiAdminUser['id']>;
+  email: NonNullable<OpenApiAdminUser['email']>;
+  enabled: NonNullable<OpenApiAdminUser['enabled']>;
+  lockedUntil: OpenApiAdminUser['lockedUntil'] | null | undefined;
+  createdAt: NonNullable<OpenApiAdminUser['createdAt']>;
+  roles: NonNullable<OpenApiAdminUser['roles']>;
+};
+
+type OpenApiAdminRole = components['schemas']['AdminRoleResponse'];
+export type AdminRole = {
+  id: NonNullable<OpenApiAdminRole['id']>;
+  name: NonNullable<OpenApiAdminRole['name']>;
+};
+
+export type CreateUserPayload = components['schemas']['CreateUserRequest'];
+export type SetUserRolesPayload = components['schemas']['SetUserRolesRequest'];
+export type SetUserEnabledPayload = components['schemas']['SetUserEnabledRequest'];
