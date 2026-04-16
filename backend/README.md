@@ -107,6 +107,7 @@ Phase-aligned notes (Problem Details, JWT + refresh cookie, what minification do
 - Optional public: `/actuator/metrics/**`, `/actuator/prometheus` (configurable)
 - **SUPER_ADMIN:** `/api/v1/admin/**` (users, roles, **audit log** `GET /api/v1/admin/audit-logs`)
 - **SUPER_ADMIN / APP_ADMIN:** `/api/v1/branches/**`
+- **Authenticated (any role):** `GET /api/v1/me` (current user profile: id, email, roles, …)
 - Other routes: authenticated
 
 Spring does **not** serve the static UI; the **`web`** container (Nginx) does on host port **8080**. The API is also reachable **directly** on host port **8081** for tools and clarity.

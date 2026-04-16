@@ -10,6 +10,7 @@ export const ApiPaths = {
   authLogin: apiPath('/api/v1/auth/login'),
   authLogout: apiPath('/api/v1/auth/logout'),
   authRefresh: apiPath('/api/v1/auth/refresh'),
+  me: apiPath('/api/v1/me'),
   branches: apiPath('/api/v1/branches'),
   adminRoles: apiPath('/api/v1/admin/roles'),
   adminUsers: apiPath('/api/v1/admin/users'),

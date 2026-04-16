@@ -79,7 +79,7 @@ frontend/
 - `frontend/README.md` documents run, build, test, and folder layout.
 
 **Progress:** see [status.md](status.md). **F1**, **F2**, and hardening **H1** (refresh interceptor + Nginx CSP) are **closed**. **F3** is **closed** (branches + admin query cache; see status).  
-**Next:** IAM front-end gaps (register, change-password, `/me`, OAuth/phone UX) are tracked in [status.md — IAM3](status.md#iam3-admin-frontend); design reference [auth-platform.md](auth-platform.md). Optionally extend **F3** to other GETs or stricter CSP.
+**Next:** Admin SPA gaps beyond email login (register, change-password, `/me`, OAuth/phone UX) are tracked under **IAM2** in [status.md](status.md#iam2-admin-platform-api--spa); design reference [auth-platform.md](auth-platform.md). Optionally extend **F3** to other GETs or stricter CSP.
 
 ---
 

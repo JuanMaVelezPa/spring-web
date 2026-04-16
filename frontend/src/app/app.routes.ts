@@ -25,6 +25,11 @@ export const routes: Routes = [
         path: 'branches',
         loadChildren: () => import('./features/branches/branches.routes').then((m) => m.branchesRoutes),
       },
+      {
+        path: 'me',
+        data: { titleKey: 'myProfileTitle' },
+        loadComponent: () => import('./features/account/my-profile.component').then((m) => m.MyProfileComponent),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

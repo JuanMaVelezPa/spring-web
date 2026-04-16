@@ -14,7 +14,7 @@ For delivery status, see [roadmap/status.md](roadmap/status.md).
 | **Frontend** | **F1** (first slice) | **Done**: login, paged list, create branch, i18n, OpenAPI typings, tests, smoke. |
 | **Frontend** | **F2** (second slice) | **Done**: branch detail, update, deactivate in the UI (API from **B1**). |
 | **Frontend** | **H1** (hardening) | **Done**: `POST /api/v1/auth/refresh` via **`refreshInterceptor`** (cookie + `HttpBackend`); **CSP** and related headers on **`frontend/nginx.conf`**; FOUC script in **`public/theme-init.js`** for strict `script-src 'self'`. |
-| **Full stack** | **IAM1–IAM3** (identity + admin) | **Largely done**; remaining gaps (method security, audit read, `/me`, self-service auth UX) are listed in [status.md](roadmap/status.md). |
+| **Full stack** | **IAM1–IAM2** (identity + admin platform) | **Largely done**; **`GET /api/v1/me`** + SPA **`/me`** shipped; other gaps (self-service OAuth, change-password, …) are listed in [status.md](roadmap/status.md). |
 
 **Branch CRUD** in the browser is complete with **F2**. Further security work is **IAM waves** (audit, rate limits, MFA, recovery, OAuth, …) per [evolution.md](roadmap/evolution.md).
 

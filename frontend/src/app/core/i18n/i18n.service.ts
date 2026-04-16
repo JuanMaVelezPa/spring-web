@@ -110,6 +110,12 @@ const dictionary = {
     passwordRuleLower: 'At least one lowercase letter',
     passwordRuleNumber: 'At least one number',
     passwordRuleSpecial: 'At least one special character',
+    myProfileNav: 'Profile',
+    myProfileTitle: 'My profile',
+    loadingProfile: 'Loading profile…',
+    profileLoadFailed: 'Could not load profile',
+    profileRoles: 'Roles',
+    profileUserId: 'User id',
   },
   es: {
     appTitle: 'Sucursales',
@@ -216,6 +222,12 @@ const dictionary = {
     passwordRuleLower: 'Al menos una letra minúscula',
     passwordRuleNumber: 'Al menos un número',
     passwordRuleSpecial: 'Al menos un carácter especial',
+    myProfileNav: 'Perfil',
+    myProfileTitle: 'Mi perfil',
+    loadingProfile: 'Cargando perfil…',
+    profileLoadFailed: 'No se pudo cargar el perfil',
+    profileRoles: 'Roles',
+    profileUserId: 'Id de usuario',
   },
 } as const;
 

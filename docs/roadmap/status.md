@@ -4,6 +4,8 @@ Living checklist: update when a milestone closes. Technical detail stays in modu
 
 **Ordered evolution (versions, waves, BE+FE together):** [**evolution.md**](evolution.md) — read this first for **what to do next** and **v1.x** base template bumps.
 
+**Branch names vs IAM3:** a branch called `iam2` matches **wave 2 (v1.2)**, which in the docs is a single code **IAM2** (admin API + admin SPA). The next **IAM** wave is **IAM3** = **v1.4** — see [evolution.md § Git branches vs IAM codes](evolution.md#git-branch-names-vs-iam-codes-read-this-once).
+
 ## Delivery timeline (read this first)
 
 ### Done — **v1.0** baseline
@@ -18,17 +20,17 @@ Living checklist: update when a milestone closes. Technical detail stays in modu
 
 ### IAM & later waves — map to [evolution.md](evolution.md)
 
-Work landed **out of strict wave order** in places (e.g. **F3** and much of **IAM2/IAM3** shipped while IAM1 was still maturing). Use the tables below for **what is done vs what remains**; the version column is the **template label** when you choose to “close” a wave.
+Work landed **out of strict wave order** in places (e.g. **F3** and **IAM2** shipped while IAM1 was still maturing). Use the tables below for **what is done vs what remains**; the version column is the **template label** when you choose to “close” a wave.
 
 | Version | Wave | Codes (summary) | Closure status |
 |---------|------|-----------------|----------------|
-| **v1.1** | 1 | **IAM1** | **Mostly done** — close after you accept email-only §1.1 for this baseline (phone/OAuth → IAM5). |
-| **v1.2** | 2 | **IAM2**, **IAM3** | **Done** for this template (super-admin IAM + audit read + method security). Optional multi-app scope remains YAGNI. |
+| **v1.1** | 1 | **IAM1** | **Done** for this template — email/password identity, lockout, **`GET /api/v1/me`** + SPA **`/me`**; phone/OAuth → **IAM4**. |
+| **v1.2** | 2 | **IAM2** (admin API + admin UI) | **Done** for this template (super-admin IAM + audit read + method security). Optional multi-app scope remains YAGNI. |
 | **v1.3** | 3 | **F3** | **Done** |
-| **v1.4** | 4 | **IAM4** | Not started |
-| **v1.5** | 5 | **IAM5** | Not started (forgot password, OTP, **phone**, Google OAuth, …) |
-| **v1.6** | 6 | **IAM6** | Not started |
-| **v1.7** | 7 | **IAM7** | Not started |
+| **v1.4** | 4 | **IAM3** | Not started |
+| **v1.5** | 5 | **IAM4** | Not started (forgot password, OTP, **phone**, Google OAuth, …) |
+| **v1.6** | 6 | **IAM5** | Not started |
+| **v1.7** | 7 | **IAM6** | Not started |
 
 Detail per milestone: [auth-platform.md](auth-platform.md), [frontend.md](frontend.md). Cross-cutting: [security.md](../security.md).
 
@@ -46,47 +48,46 @@ Single place for **code truth** vs **auth-platform.md** (design). Update this se
 | DB-backed `UserDetailsService` (`DbUserDetailsService`) | **Done** |
 | Shared **password policy** (admin create + design for future flows) | **Done** |
 | **Lockout** (`failed_login_count`, `locked_until`, configurable thresholds) | **Done** |
-| §1.1 extras: **phone**, **OAuth** columns, **handle**, multi-anchor linking | **Deferred** → **IAM5+** (optional preparatory migration earlier if useful) |
-| **Registration** (public sign-up) | **Not implemented** → optional **IAM3** polish or **IAM5** scope |
-| **`GET /me`** (or profile) for SPA | **Not implemented** → optional small **IAM1/3** task |
+| §1.1 extras: **phone**, **OAuth** columns, **handle**, multi-anchor linking | **Deferred** → **IAM4+** (optional preparatory migration earlier if useful) |
+| **Registration** (public sign-up) | **Not implemented** → optional **IAM2** polish or **IAM4** scope |
+| **`GET /api/v1/me`** (profile for SPA) | **Done** — `MeController` + nav link **`/me`** (email, roles, id, `createdAt`) |
 
-### IAM2: Admin APIs and enforcement
+### IAM2: Admin platform (API + SPA)
+
+Single code **IAM2** = **wave 2 (v1.2)**: backend admin endpoints **and** Angular admin area together.
 
 | Deliverable | Status |
 |-------------|--------|
 | REST **`/api/v1/admin/users`** (list, get, create, set enabled, set roles) | **Done** |
 | REST **`/api/v1/admin/roles`** (list) | **Done** |
+| **`GET /api/v1/admin/audit-logs`** (paged) + **`/admin/audit-log`** UI | **Done** |
 | **`SUPER_ADMIN` only** on `/api/v1/admin/**` (`SecurityConfig`) | **Done** |
 | **`APP_ADMIN`** on **`/api/v1/branches/**`** only (not on IAM admin) | **Done** (single-app template) |
 | **IAM audit** persistence (**V4** `iam_audit_log`) on user create / enable / roles | **Done** |
 | Metrics for admin actions | **Done** (`app_iam_admin_action_total`, etc.) |
-| **`@PreAuthorize` / method-level** on admin REST controllers | **Done** (`@EnableMethodSecurity` + class-level `hasRole('SUPER_ADMIN')` on admin controllers). |
+| **`@PreAuthorize` / method-level** on admin REST controllers | **Done** (`@EnableMethodSecurity` + class-level `hasRole('SUPER_ADMIN')`). |
 | **APP_ADMIN “scoped” IAM** (per-application users/roles, `applications` table) | **Deferred** — **YAGNI** for single-deploy template; revisit for multi-tenant forks. |
-| **Read audit** API + operator UI | **Done** — `GET /api/v1/admin/audit-logs` (paged, sort `createdAt` / `action`); SPA **`/admin/audit-log`** with subnav. |
+| **`/admin`** lazy routes; **`roleGuard(['SUPER_ADMIN'])`**; shell link | **Done** |
+| Users / roles / audit screens; TanStack Query (**F3** pattern) | **Done** |
+| Create-user flow + password policy checklist | **Done** |
+| Login/register UX for **email + phone + Google** (§1.1) | **Partial** — **email/password login only**; **phone/Google** → **IAM4** |
+| **Change-password** UI (and API) | **Gap** → typically **IAM3/4** with reset flow, or small dedicated story |
 | **Postman / OpenAPI** kept in sync with admin endpoints | **Ongoing** — verify when APIs change |
 
-### IAM3: Admin frontend
-
-| Deliverable | Status |
-|-------------|--------|
-| **`/admin`** lazy routes; **`roleGuard(['SUPER_ADMIN'])`** | **Done** |
-| Users + roles screens; TanStack Query + invalidation (**F3** pattern) | **Done** |
-| Create-user flow + password policy checklist | **Done** |
-| Login/register UX for **email + phone + Google** (§1.1) | **Partial** — **email/password login only**; **phone/Google** → **IAM5** |
-| **Change-password** UI (and API) | **Gap** → typically **IAM4/5** with reset flow, or small dedicated story |
-| Shell/nav visibility rules for roles | **Done** for super-admin entry to admin (refine as roles grow) |
+**IAM2 / v1.2 closure (this template):** Treat **v1.2** as **closed** when the **Done** rows above match your deployment. Rows **Partial** (phone/Google login) or **Gap** (change-password) are **not** part of the core IAM2 slice: they are either deferred to **IAM4** or optional polish. **APP_ADMIN-scoped IAM** is explicitly **YAGNI** here. To formalize closure: run [verification commands](#verification-quick) below, update Postman if needed, and tag or note **v1.2** in the changelog or PR.
 
 ### What to do next (suggested order)
 
-1. **Declare v1.1 closed** in commits/tags when you are happy with email-only identity + lockout (no need to wait on phone).
-2. **v1.2 (IAM2/IAM3) for this repo:** closed with **method security** + **audit log read** + admin UI; multi-app IAM remains an optional fork extension.
-3. **IAM3 polish:** optional **`/me`**, **change-password** if you add the API; keep register/OAuth/phone aligned with **IAM5**.
-4. Then **IAM4** (refresh rotation, rate limits, MFA, …) per [evolution.md](evolution.md).
+1. **v1.1** is **closed** in docs for this template (tag **`v1.1.0`** or your convention when you bump the baseline — see root `CHANGELOG.md`).
+2. **v1.2 (IAM2) for this repo:** closed with **method security** + **audit log read** + admin UI; multi-app IAM remains an optional fork extension.
+3. **IAM2 polish (optional):** **change-password** if you add the API; keep register/OAuth/phone aligned with **IAM4**.
+4. Then **IAM3** (refresh rotation, rate limits, MFA, …) per [evolution.md](evolution.md).
 
 ### Progress note (recent delivery)
 
+- **v1.1 closure:** **`GET /api/v1/me`** (`MeController`); SPA **`/me`** + shell **Profile** link; Postman **1.05 Me**; TanStack `me` queries cleared on login/logout.
 - **v1.2 closure:** `@EnableMethodSecurity` + `@PreAuthorize("hasRole('SUPER_ADMIN')")` on admin controllers; **`GET /api/v1/admin/audit-logs`** (paged); admin UI subnav + **Audit** tab with TanStack Query.
-- IAM2/IAM3 advanced with reusable validation utilities:
+- **IAM2** advanced with reusable validation utilities:
   - Backend shared password policy utility wired into admin user creation.
   - Frontend reusable account validation utility + visual password rules checklist in Admin create-user flow.
 - List endpoints: default `size` aligned to **10** in `PageRequestParams` (matches Admin UI / branches list).

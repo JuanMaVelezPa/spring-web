@@ -84,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMe"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/users": {
         parameters: {
             query?: never;
@@ -227,6 +243,17 @@ export interface components {
         LoginRequest: {
             username: string;
             password: string;
+        };
+        MeResponse: {
+            /** Format: uuid */
+            id?: string;
+            email?: string;
+            enabled?: boolean;
+            /** Format: date-time */
+            lockedUntil?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            roles?: string[];
         };
         CreateUserRequest: {
             /** Format: email */
@@ -464,6 +491,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["LoginResponse"];
+                };
+            };
+        };
+    };
+    getMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MeResponse"];
                 };
             };
         };

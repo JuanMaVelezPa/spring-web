@@ -92,9 +92,9 @@ spring-web/
 
 ## 9) Immediate next step
 
-**v1.0** is complete (**B1, B2, F1, F2, H1**). **F3** is also complete. **IAM1–IAM3** are **largely implemented** in code; remaining items and wave closure are tracked in [**status.md — IAM**](status.md#iam-implementation-and-gaps-this-repo) (not “all Planned” anymore).
+**v1.0** is complete (**B1, B2, F1, F2, H1**). **F3** is also complete. **v1.1 / IAM1** is **closed** for this template (identity, lockout, **`GET /api/v1/me`**, SPA **`/me`**). **v1.2 / IAM2** (admin API + admin UI) is **closed** in [**status.md**](status.md). Deferred items (phone/OAuth, registration, …) are listed in [**status.md — IAM**](status.md#iam-implementation-and-gaps-this-repo).
 
-**Suggested focus:** tag **v1.1** when email-only identity + lockout are accepted; **v1.2** (admin + audit + method security) is implemented in this repo — next template wave is **IAM4+** per [**evolution.md**](evolution.md).
+**Suggested focus:** **v1.1** is **closed** in this template (identity + lockout + **`/me`**). **v1.2** (admin + audit + method security) is implemented — next template wave is **IAM3+** per [**evolution.md**](evolution.md). Optionally git tag **`v1.1.0`** (see root `CHANGELOG.md`).
 
 References:
 

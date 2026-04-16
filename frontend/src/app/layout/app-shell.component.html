@@ -18,6 +18,14 @@
           {{ i18n.t('admin') }}
         </a>
       }
+      <a
+        routerLink="/me"
+        class="btn btn-ghost btn-sm"
+        [attr.aria-label]="i18n.t('myProfileTitle')"
+        [attr.title]="i18n.t('myProfileTitle')"
+      >
+        {{ i18n.t('myProfileNav') }}
+      </a>
       <app-settings-dropdown variant="account" (logoutRequested)="logout()" />
       @if (loggingOut()) {
         <app-loading-spinner size="sm" />

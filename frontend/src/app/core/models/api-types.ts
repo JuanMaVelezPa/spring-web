@@ -38,6 +38,16 @@ export type LoginResponse = {
 
 export type LoginRequest = components['schemas']['LoginRequest'];
 
+type OpenApiMe = components['schemas']['MeResponse'];
+export type MeProfile = {
+  id: NonNullable<OpenApiMe['id']>;
+  email: NonNullable<OpenApiMe['email']>;
+  enabled: NonNullable<OpenApiMe['enabled']>;
+  lockedUntil: OpenApiMe['lockedUntil'] | null | undefined;
+  createdAt: NonNullable<OpenApiMe['createdAt']>;
+  roles: NonNullable<OpenApiMe['roles']>;
+};
+
 type OpenApiAdminUser = components['schemas']['AdminUserResponse'];
 export type AdminUser = {
   id: NonNullable<OpenApiAdminUser['id']>;

@@ -70,7 +70,8 @@ Variables, Alertmanager, and production-like compose: [backend/README.md](backen
 ## Planning & standards
 
 Phased delivery, Git workflow, and decided standards: [docs/roadmap/overview.md](docs/roadmap/overview.md).  
-What is done vs next: [docs/roadmap/status.md](docs/roadmap/status.md).
+What is done vs next: [docs/roadmap/status.md](docs/roadmap/status.md).  
+Template release notes (`v1.x`): [CHANGELOG.md](CHANGELOG.md).
 
 ## Author
 
