@@ -1,9 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { QueryClient, injectQuery } from '@tanstack/angular-query-experimental';
+import { finalize, lastValueFrom, map } from 'rxjs';
 import { BranchApiService } from '../../core/branches/branch-api.service';
+import {
+  branchQueryKeys,
+  invalidateBranchDetailQuery,
+  invalidateBranchListQueries,
+} from '../../core/branches/branch-query.keys';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { problemDetailMessage } from '../../core/util/http-error';
 import { BusySectionComponent } from '../../shared/ui/busy-section/busy-section.component';
@@ -23,63 +30,87 @@ import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-sta
   ],
   templateUrl: './branch-edit.component.html',
 })
-export class BranchEditComponent implements OnInit {
+export class BranchEditComponent {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly branches = inject(BranchApiService);
+  private readonly queryClient = inject(QueryClient);
   protected readonly i18n = inject(I18nService);
 
-  readonly loadError = signal<string | null>(null);
+  private readonly idSignal = toSignal(
+    this.route.paramMap.pipe(map((p) => p.get('id') ?? '')),
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
+  );
+
+  /** Route id — exposed for template (e.g. back link). */
+  protected readonly branchId = computed(() => this.idSignal());
+
+  readonly branchQuery = injectQuery(() => {
+    const id = this.idSignal();
+    return {
+      queryKey: branchQueryKeys.detail(id),
+      queryFn: () => lastValueFrom(this.branches.getById(id)),
+      enabled: !!id,
+    };
+  });
+
+  readonly loadError = computed(() => {
+    if (!this.idSignal()) {
+      return this.i18n.t('branchNotFound');
+    }
+    const err = this.branchQuery.error();
+    return err ? problemDetailMessage(err) : null;
+  });
+  readonly loading = computed(() => !!this.idSignal() && this.branchQuery.isPending());
+
   readonly saveError = signal<string | null>(null);
-  readonly loading = signal(true);
   readonly saving = signal(false);
   readonly code = signal<string>('');
-
-  protected branchId = '';
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
     city: ['', [Validators.required, Validators.maxLength(120)]],
   });
 
-  ngOnInit(): void {
-    this.branchId = this.route.snapshot.paramMap.get('id') ?? '';
-    if (!this.branchId) {
-      this.loadError.set(this.i18n.t('branchNotFound'));
-      this.loading.set(false);
-      return;
-    }
-    this.loading.set(true);
-    this.loadError.set(null);
-    this.branches
-      .getById(this.branchId)
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (b) => {
-          this.code.set(b.code);
-          this.form.patchValue({ name: b.name, city: b.city });
-        },
-        error: (err) => {
-          this.loadError.set(problemDetailMessage(err));
-          if (err instanceof HttpErrorResponse && err.status === 404) {
-            void this.router.navigate(['/branches'], { replaceUrl: true });
-          }
-        },
-      });
+  constructor() {
+    effect(() => {
+      const err = this.branchQuery.error();
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        void this.router.navigate(['/branches'], { replaceUrl: true });
+      }
+    });
+
+    effect(() => {
+      const id = this.idSignal();
+      const b = this.branchQuery.data();
+      if (!id || !b) {
+        return;
+      }
+      if (this.form.dirty) {
+        return;
+      }
+      this.code.set(b.code);
+      this.form.patchValue({ name: b.name, city: b.city }, { emitEvent: false });
+    });
   }
 
   submit(): void {
-    if (this.form.invalid) {
+    const id = this.idSignal();
+    if (!id || this.form.invalid) {
       return;
     }
     this.saveError.set(null);
     this.saving.set(true);
     this.branches
-      .update(this.branchId, this.form.getRawValue())
+      .update(id, this.form.getRawValue())
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
-        next: () => void this.router.navigate(['/branches', this.branchId]),
+        next: () => {
+          invalidateBranchListQueries(this.queryClient);
+          invalidateBranchDetailQuery(this.queryClient, id);
+          void this.router.navigate(['/branches', id]);
+        },
         error: (err) => this.saveError.set(problemDetailMessage(err)),
       });
   }

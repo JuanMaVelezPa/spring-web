@@ -78,12 +78,12 @@ frontend/
 - Problem Details (or API error shape) surfaced in user-friendly messages.
 - `frontend/README.md` documents run, build, test, and folder layout.
 
-**Progress:** see [status.md](status.md). **F1**, **F2**, and hardening **H1** (refresh interceptor + Nginx CSP) are **closed**.  
-**Next (optional):** **F3** client-side query cache (below), stricter CSP, [IAM](../roadmap/auth-platform.md) UI slices.
+**Progress:** see [status.md](status.md). **F1**, **F2**, and hardening **H1** (refresh interceptor + Nginx CSP) are **closed**. **F3** is **closed** (branches + admin query cache; see status).  
+**Next:** extend **F3** to other GETs if needed, stricter CSP, further [IAM](../roadmap/auth-platform.md) slices.
 
 ---
 
-## Planned — **F3** Client-side query cache (stale-while-revalidate)
+## **F3** Client-side query cache (stale-while-revalidate) — branches + admin implemented
 
 **Intent:** Cache **GET** results in the SPA so revisiting a screen or waiting on a timer does not always hit the network; **mutations** (create / update / delete) **invalidate** affected keys so lists stay correct with **fewer redundant backend calls**.
 
@@ -104,6 +104,7 @@ The **server** remains authoritative; the cache only avoids repeat reads the use
 1. **TTL (e.g. 5 minutes):** treat data as **fresh** for that window; optional **background refetch** when stale (user still sees last good list first).
 2. **Invalidate (or refetch) on mutations:** after successful **create / update / delete** on branches, **drop or refresh** all `branch list` cache entries (and **detail** for that `id` if cached).
 3. **Optional:** refetch when the **window regains focus** or **manual “Refresh”** — cheap wins without polling every second.
+4. Same pattern now applied to **admin users/roles** list endpoints with reusable query key builders and invalidation helpers.
 
 ### Reusable implementation (general for future features)
 

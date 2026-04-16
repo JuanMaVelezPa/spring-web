@@ -1,9 +1,9 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { Component, computed, inject } from '@angular/core';
+import { injectQuery } from '@tanstack/angular-query-experimental';
+import { lastValueFrom } from 'rxjs';
 import { AdminApiService } from '../../core/admin/admin-api.service';
+import { adminQueryKeys } from '../../core/admin/admin-query.keys';
 import { I18nService } from '../../core/i18n/i18n.service';
-import type { AdminRole } from '../../core/models/api-types';
 import { problemDetailMessage } from '../../core/util/http-error';
 import { InlineAlertComponent } from '../../shared/ui/inline-alert/inline-alert.component';
 import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-state.component';
@@ -13,32 +13,20 @@ import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-sta
   imports: [InlineAlertComponent, LoadingStateComponent],
   templateUrl: './admin-roles.component.html',
 })
-export class AdminRolesComponent implements OnInit {
+export class AdminRolesComponent {
   private readonly admin = inject(AdminApiService);
-  private readonly destroyRef = inject(DestroyRef);
   protected readonly i18n = inject(I18nService);
 
-  readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
-  readonly roles = signal<AdminRole[]>([]);
+  readonly rolesQuery = injectQuery(() => ({
+    queryKey: adminQueryKeys.roles(),
+    queryFn: () => lastValueFrom(this.admin.listRoles()),
+  }));
 
-  ngOnInit(): void {
-    this.load();
-  }
-
-  private load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.admin
-      .listRoles()
-      .pipe(
-        finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (res) => this.roles.set(res ?? []),
-        error: (err) => this.error.set(problemDetailMessage(err)),
-      });
-  }
+  readonly loading = computed(() => this.rolesQuery.isPending());
+  readonly error = computed(() => {
+    const err = this.rolesQuery.error();
+    return err ? problemDetailMessage(err) : null;
+  });
+  readonly roles = computed(() => this.rolesQuery.data() ?? []);
 }
 

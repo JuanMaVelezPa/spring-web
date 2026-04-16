@@ -19,45 +19,11 @@ export const routes: Routes = [
       {
         path: 'admin',
         canActivate: [roleGuard(['SUPER_ADMIN'])],
-        children: [
-          { path: '', pathMatch: 'full', redirectTo: 'users' },
-          {
-            path: 'users',
-            data: { titleKey: 'adminUsersTitle' },
-            loadComponent: () =>
-              import('./features/admin/admin-users.component').then((m) => m.AdminUsersComponent),
-          },
-          {
-            path: 'roles',
-            data: { titleKey: 'adminRolesTitle' },
-            loadComponent: () =>
-              import('./features/admin/admin-roles.component').then((m) => m.AdminRolesComponent),
-          },
-        ],
+        loadChildren: () => import('./features/admin/admin.routes').then((m) => m.adminRoutes),
       },
       {
         path: 'branches',
-        data: { titleKey: 'branchesTitle' },
-        loadComponent: () =>
-          import('./features/branches/branch-list.component').then((m) => m.BranchListComponent),
-      },
-      {
-        path: 'branches/new',
-        data: { titleKey: 'newBranchTitle' },
-        loadComponent: () =>
-          import('./features/branches/branch-create.component').then((m) => m.BranchCreateComponent),
-      },
-      {
-        path: 'branches/:id/edit',
-        data: { titleKey: 'editBranchTitle' },
-        loadComponent: () =>
-          import('./features/branches/branch-edit.component').then((m) => m.BranchEditComponent),
-      },
-      {
-        path: 'branches/:id',
-        data: { titleKey: 'branchDetailTitle' },
-        loadComponent: () =>
-          import('./features/branches/branch-detail.component').then((m) => m.BranchDetailComponent),
+        loadChildren: () => import('./features/branches/branches.routes').then((m) => m.branchesRoutes),
       },
     ],
   },

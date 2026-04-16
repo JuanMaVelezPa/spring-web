@@ -22,7 +22,7 @@ Living checklist: update when a milestone closes. Technical detail stays in modu
 |---------|------|-----------------|--------|
 | **v1.1** | 1 | **IAM1** | Planned |
 | **v1.2** | 2 | **IAM2**, **IAM3** | Planned |
-| **v1.3** | 3 | **F3** | Planned |
+| **v1.3** | 3 | **F3** | **Done** |
 | **v1.4** | 4 | **IAM4** | Planned |
 | **v1.5** | 5 | **IAM5** | Planned |
 | **v1.6** | 6 | **IAM6** | Planned |
@@ -36,6 +36,9 @@ Detail per milestone: [auth-platform.md](auth-platform.md), [frontend.md](fronte
   - Backend shared password policy utility wired into admin user creation.
   - Frontend reusable account validation utility + visual password rules checklist in Admin create-user flow.
 - List endpoints: default `size` aligned to **10** in `PageRequestParams` (matches Admin UI / branches list).
+- **F3 (wave 3):** TanStack Query (`@tanstack/angular-query-experimental`) — branches **and admin users/roles** use query keys + cached reads (`staleTime` 5 min, `refetchOnWindowFocus`) with invalidation on mutations.
+- Lazy loading refined by moving `admin` and `branches` trees to route-level `loadChildren` groups for cleaner chunk boundaries.
+- Delivery tuning: DaisyUI `include` subset in `styles.css` (smaller CSS), `nginx.conf` gzip + long-cache hashed assets + no-store `index.html`, Angular `initial` budget aligned (~`560kB` warning).
 
 ---
 

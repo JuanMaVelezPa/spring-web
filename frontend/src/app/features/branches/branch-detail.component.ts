@@ -1,9 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { QueryClient, injectQuery } from '@tanstack/angular-query-experimental';
+import { finalize, lastValueFrom, map } from 'rxjs';
 import { BranchApiService } from '../../core/branches/branch-api.service';
+import { branchQueryKeys, invalidateBranchListQueries } from '../../core/branches/branch-query.keys';
 import { I18nService } from '../../core/i18n/i18n.service';
 import type { Branch } from '../../core/models/api-types';
 import { problemDetailMessage } from '../../core/util/http-error';
@@ -15,28 +18,53 @@ import { LoadingStateComponent } from '../../shared/ui/loading-state/loading-sta
   imports: [RouterLink, InlineAlertComponent, LoadingStateComponent, DatePipe],
   templateUrl: './branch-detail.component.html',
 })
-export class BranchDetailComponent implements OnInit {
+export class BranchDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly branches = inject(BranchApiService);
+  private readonly queryClient = inject(QueryClient);
   protected readonly i18n = inject(I18nService);
 
-  readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
-  readonly branch = signal<Branch | null>(null);
+  private readonly branchIdSignal = toSignal(
+    this.route.paramMap.pipe(map((p) => p.get('id') ?? '')),
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
+  );
+
+  readonly branchQuery = injectQuery(() => {
+    const id = this.branchIdSignal();
+    return {
+      queryKey: branchQueryKeys.detail(id),
+      queryFn: () => lastValueFrom(this.branches.getById(id)),
+      enabled: !!id,
+    };
+  });
+
+  readonly loading = computed(() => !!this.branchIdSignal() && this.branchQuery.isPending());
+  private readonly deactivateError = signal<string | null>(null);
+  readonly error = computed(() => {
+    if (!this.branchIdSignal()) {
+      return this.i18n.t('branchNotFound');
+    }
+    const actionErr = this.deactivateError();
+    if (actionErr) {
+      return actionErr;
+    }
+    const err = this.branchQuery.error();
+    return err ? problemDetailMessage(err) : null;
+  });
+  readonly branch = computed(() => this.branchQuery.data() ?? null);
+
   readonly actionBusy = signal(false);
-  private branchId = '';
 
   private readonly deactivateDialogEl = viewChild<ElementRef<HTMLDialogElement>>('deactivateDialog');
 
-  ngOnInit(): void {
-    this.branchId = this.route.snapshot.paramMap.get('id') ?? '';
-    if (!this.branchId) {
-      this.error.set(this.i18n.t('branchNotFound'));
-      this.loading.set(false);
-      return;
-    }
-    this.load();
+  constructor() {
+    effect(() => {
+      const err = this.branchQuery.error();
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        void this.router.navigate(['/branches'], { replaceUrl: true });
+      }
+    });
   }
 
   openDeactivateDialog(): void {
@@ -55,37 +83,24 @@ export class BranchDetailComponent implements OnInit {
   }
 
   executeDeactivate(): void {
+    const id = this.branchIdSignal();
     const b = this.branch();
-    if (!b?.isActive || this.actionBusy()) {
+    if (!id || !b?.isActive || this.actionBusy()) {
       this.closeDeactivateDialog();
       return;
     }
     this.closeDeactivateDialog();
+    this.deactivateError.set(null);
     this.actionBusy.set(true);
-    this.error.set(null);
     this.branches
-      .deactivate(this.branchId)
+      .deactivate(id)
       .pipe(finalize(() => this.actionBusy.set(false)))
       .subscribe({
-        next: (updated) => this.branch.set(updated),
-        error: (err) => this.error.set(problemDetailMessage(err)),
-      });
-  }
-
-  private load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.branches
-      .getById(this.branchId)
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (b) => this.branch.set(b),
-        error: (err) => {
-          this.error.set(problemDetailMessage(err));
-          if (err instanceof HttpErrorResponse && err.status === 404) {
-            void this.router.navigate(['/branches'], { replaceUrl: true });
-          }
+        next: (updated) => {
+          this.queryClient.setQueryData(branchQueryKeys.detail(id), updated);
+          invalidateBranchListQueries(this.queryClient);
         },
+        error: (err) => this.deactivateError.set(problemDetailMessage(err)),
       });
   }
 }

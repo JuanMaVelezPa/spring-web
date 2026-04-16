@@ -1,14 +1,13 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, Subscription } from 'rxjs';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { QueryClient, injectQuery } from '@tanstack/angular-query-experimental';
+import { finalize, lastValueFrom } from 'rxjs';
 import { AdminApiService } from '../../core/admin/admin-api.service';
+import { adminQueryKeys, invalidateAdminRoles, invalidateAdminUsers } from '../../core/admin/admin-query.keys';
 import { I18nService } from '../../core/i18n/i18n.service';
 import type {
-  AdminRole,
   AdminUser,
   CreateUserPayload,
-  PagedResponse,
   SetUserEnabledPayload,
   SetUserRolesPayload,
 } from '../../core/models/api-types';
@@ -33,18 +32,13 @@ import { isValidEmail, isValidPassword } from '../../core/validation/account-val
   ],
   templateUrl: './admin-users.component.html',
 })
-export class AdminUsersComponent implements OnInit {
+export class AdminUsersComponent {
   private readonly admin = inject(AdminApiService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly queryClient = inject(QueryClient);
   protected readonly i18n = inject(I18nService);
 
-  private listSubscription?: Subscription;
-
-  readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly data = signal<PagedResponse<AdminUser> | null>(null);
   readonly mutating = signal(false);
-  readonly roles = signal<AdminRole[]>([]);
 
   // Create user modal state
   readonly createEmail = signal('');
@@ -61,7 +55,7 @@ export class AdminUsersComponent implements OnInit {
   // Enable/disable confirm modal state
   readonly confirmUser = signal<AdminUser | null>(null);
   readonly page = signal(0);
-  readonly pageSize = signal(20);
+  readonly pageSize = signal(10);
   /** API field names — must match backend whitelist (email, enabled, createdAt). */
   readonly sortColumn = signal<'email' | 'enabled' | 'createdAt'>('createdAt');
   readonly sortDirection = signal<SortDirection>('desc');
@@ -76,21 +70,31 @@ export class AdminUsersComponent implements OnInit {
     return d.content.slice(0, limit);
   });
 
-  private loadSeq = 0;
+  readonly rolesQuery = injectQuery(() => ({
+    queryKey: adminQueryKeys.roles(),
+    queryFn: () => lastValueFrom(this.admin.listRoles()),
+  }));
 
-  ngOnInit(): void {
-    this.load();
-    this.admin
-      .listRoles()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => this.roles.set(res ?? []),
-        error: () => this.roles.set([]),
-      });
+  readonly usersQuery = injectQuery(() => {
+    const sort = formatSortQuery(this.sortColumn(), this.sortDirection());
+    return {
+      queryKey: adminQueryKeys.userList(this.page(), this.pageSize(), sort),
+      queryFn: () => lastValueFrom(this.admin.listUsers(this.page(), this.pageSize(), sort)),
+    };
+  });
+
+  readonly loading = computed(() => this.usersQuery.isPending());
+  readonly data = computed(() => this.usersQuery.data() ?? null);
+
+  constructor() {
+    effect(() => {
+      const err = this.usersQuery.error();
+      this.error.set(err ? problemDetailMessage(err) : null);
+    });
   }
 
   readonly roleNames = computed(() =>
-    (this.roles() ?? [])
+    (this.rolesQuery.data() ?? [])
       .map((r) => r.name)
       .filter((x): x is string => typeof x === 'string' && x.length > 0)
       .sort(),
@@ -135,7 +139,8 @@ export class AdminUsersComponent implements OnInit {
       .subscribe({
         next: () => {
           dialog.close();
-          this.load();
+          invalidateAdminUsers(this.queryClient);
+          invalidateAdminRoles(this.queryClient);
         },
         error: (err) => this.error.set(problemDetailMessage(err)),
       });
@@ -176,7 +181,7 @@ export class AdminUsersComponent implements OnInit {
         next: () => {
           dialog.close();
           this.rolesUser.set(null);
-          this.load();
+          invalidateAdminUsers(this.queryClient);
         },
         error: (err) => this.error.set(problemDetailMessage(err)),
       });
@@ -202,7 +207,7 @@ export class AdminUsersComponent implements OnInit {
         next: () => {
           dialog.close();
           this.confirmUser.set(null);
-          this.load();
+          invalidateAdminUsers(this.queryClient);
         },
         error: (err) => this.error.set(problemDetailMessage(err)),
       });
@@ -210,13 +215,11 @@ export class AdminUsersComponent implements OnInit {
 
   onPageChange(nextPage: number): void {
     this.page.set(nextPage);
-    this.load();
   }
 
   onPageSizeChange(nextSize: number): void {
     this.pageSize.set(nextSize);
     this.page.set(0);
-    this.load();
   }
 
   onSortColumn(key: string): void {
@@ -225,44 +228,6 @@ export class AdminUsersComponent implements OnInit {
     this.sortColumn.set(next.column as 'email' | 'enabled' | 'createdAt');
     this.sortDirection.set(next.direction);
     this.page.set(0);
-    this.load();
-  }
-
-  private load(): void {
-    this.listSubscription?.unsubscribe();
-    const seq = ++this.loadSeq;
-    this.loading.set(true);
-    this.error.set(null);
-    this.listSubscription = this.admin
-      .listUsers(this.page(), this.pageSize(), formatSortQuery(this.sortColumn(), this.sortDirection()))
-      .pipe(
-        finalize(() => {
-          if (seq === this.loadSeq) {
-            this.loading.set(false);
-          }
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (res) => {
-          if (seq !== this.loadSeq) {
-            return;
-          }
-          this.data.set(res);
-          if (typeof res.page === 'number') {
-            this.page.set(res.page);
-          }
-          if (typeof res.size === 'number') {
-            this.pageSize.set(res.size);
-          }
-        },
-        error: (err) => {
-          if (seq !== this.loadSeq) {
-            return;
-          }
-          this.error.set(problemDetailMessage(err));
-        },
-      });
   }
 }
 
