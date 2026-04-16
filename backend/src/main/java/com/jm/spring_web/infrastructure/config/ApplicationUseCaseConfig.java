@@ -10,8 +10,15 @@ import com.jm.spring_web.application.notification.port.OutboxEventRepositoryPort
 import com.jm.spring_web.application.security.port.TokenProviderPort;
 import com.jm.spring_web.application.security.port.UserCredentialsPort;
 import com.jm.spring_web.application.security.port.UserDirectoryPort;
+import com.jm.spring_web.application.security.port.AdminUserPort;
+import com.jm.spring_web.application.security.port.IamAuditPort;
 import com.jm.spring_web.application.security.usecase.AuthenticateUserUseCase;
 import com.jm.spring_web.application.security.usecase.RefreshTokenUseCase;
+import com.jm.spring_web.application.security.usecase.AdminCreateUserUseCase;
+import com.jm.spring_web.application.security.usecase.AdminGetUserUseCase;
+import com.jm.spring_web.application.security.usecase.AdminListUsersUseCase;
+import com.jm.spring_web.application.security.usecase.AdminSetUserEnabledUseCase;
+import com.jm.spring_web.application.security.usecase.AdminSetUserRolesUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -56,5 +63,30 @@ public class ApplicationUseCaseConfig {
     @Bean
     RefreshTokenUseCase refreshTokenUseCase(TokenProviderPort tokenProviderPort, UserDirectoryPort userDirectoryPort) {
         return new RefreshTokenUseCase(tokenProviderPort, userDirectoryPort);
+    }
+
+    @Bean
+    AdminCreateUserUseCase adminCreateUserUseCase(AdminUserPort adminUserPort, IamAuditPort auditPort) {
+        return new AdminCreateUserUseCase(adminUserPort, auditPort);
+    }
+
+    @Bean
+    AdminGetUserUseCase adminGetUserUseCase(AdminUserPort adminUserPort) {
+        return new AdminGetUserUseCase(adminUserPort);
+    }
+
+    @Bean
+    AdminListUsersUseCase adminListUsersUseCase(AdminUserPort adminUserPort) {
+        return new AdminListUsersUseCase(adminUserPort);
+    }
+
+    @Bean
+    AdminSetUserEnabledUseCase adminSetUserEnabledUseCase(AdminUserPort adminUserPort, IamAuditPort auditPort) {
+        return new AdminSetUserEnabledUseCase(adminUserPort, auditPort);
+    }
+
+    @Bean
+    AdminSetUserRolesUseCase adminSetUserRolesUseCase(AdminUserPort adminUserPort, IamAuditPort auditPort) {
+        return new AdminSetUserRolesUseCase(adminUserPort, auditPort);
     }
 }

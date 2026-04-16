@@ -90,6 +90,10 @@ public class IamUserJpaEntity {
         return lockedUntil;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
     public void setLockedUntil(Instant lockedUntil) {
         this.lockedUntil = lockedUntil;
     }

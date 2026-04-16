@@ -83,7 +83,7 @@ Aligned with [roadmap/backend.md](roadmap/backend.md).
 | **Refresh token in HttpOnly cookie** | Reduces XSS exfiltration compared to storing refresh tokens in JS-accessible storage. |
 | **`Secure` / `SameSite` cookie flags** (as appropriate) | Mitigates cookie theft and CSRF in combination with same-site or CSRF strategies. |
 | **Authorization matrix** | Ensures only allowed roles hit `/api/v1/branches/**`. |
-| **Secrets via env / config** | `JWT_SECRET`, `APP_PASSWORD`, etc. — never committed. |
+| **Secrets via env / config** | `JWT_SECRET`, `APP_SUPER_ADMIN_PASSWORD`, etc. — never committed. |
 | **Observability & alerts** | Detect attacks and failures (abuse patterns, dependency outages). |
 
 *Concrete behavior for this repo:* see [backend/README.md](../backend/README.md) (security matrix, auth endpoints).

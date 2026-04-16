@@ -61,7 +61,7 @@ cp monitoring/alertmanager/discord-webhook-url.example monitoring/alertmanager/d
 docker compose up -d --build
 ```
 
-Configure `JWT_SECRET`, `APP_PASSWORD`, and (optional) Discord webhook per root `.env.example`.
+Configure `JWT_SECRET`, `APP_SUPER_ADMIN_PASSWORD`, and (optional) Discord webhook per root `.env.example`.
 
 **URLs (Docker Compose on the host):**
 
@@ -69,6 +69,7 @@ Configure `JWT_SECRET`, `APP_PASSWORD`, and (optional) Discord webhook per root 
 |--------|-----------|--------|
 | **`web`** (Nginx + Angular) | **8080** | Browser entry. Proxies `/api`, `/actuator`, `/swagger-ui`, `/v3/*` to `app` so the UI keeps a single origin. |
 | **`app`** (Spring Boot) | **8081** | Direct API: Postman, `curl`, Swagger UI at http://localhost:8081/swagger-ui.html, Actuator, etc. |
+| PostgreSQL | **5433** | Exposed for local tooling (psql, migrations debugging). Inside Compose network the hostname is `postgres:5432`. |
 | Grafana | 3000 | |
 | Prometheus | 9090 | Scrapes **`app:8080`** on the Compose network (not via the host port). |
 
@@ -104,12 +105,23 @@ Phase-aligned notes (Problem Details, JWT + refresh cookie, what minification do
 
 - Public: `/api/v1/auth/**`, Swagger/OpenAPI (non-prod), `GET /actuator/health`, `GET /actuator/info`
 - Optional public: `/actuator/metrics/**`, `/actuator/prometheus` (configurable)
-- **ADMIN:** `/api/v1/branches/**`
+- **SUPER_ADMIN:** `/api/v1/admin/**` (IAM admin APIs)
+- **SUPER_ADMIN / APP_ADMIN:** `/api/v1/branches/**`
 - Other routes: authenticated
 
 Spring does **not** serve the static UI; the **`web`** container (Nginx) does on host port **8080**. The API is also reachable **directly** on host port **8081** for tools and clarity.
 
 **Auth:** login sets HttpOnly refresh cookie; access token in response body (SPA keeps it in memory). `POST /api/v1/auth/logout` clears refresh cookie (`204`).
+
+### IAM bootstrap (local)
+
+On startup, the backend can seed a first **SUPER_ADMIN** account (if missing) so a fresh fork is usable without manual SQL.
+
+- **Enable/disable:** `APP_IAM_BOOTSTRAP_ENABLED` (default `true`)
+- **Seed email:** `APP_SUPER_ADMIN_EMAIL` (default `admin@example.com`)
+- **Seed password:** `APP_SUPER_ADMIN_PASSWORD` (default `Admin_ChangeMe_2026!`)
+
+For production, treat this as a **break-glass** path: rotate secrets and restrict access to env/config.
 
 ## Pagination (standard for list endpoints)
 
@@ -133,7 +145,7 @@ Handled errors use `application/problem+json`-style bodies (`type`, `title`, `st
 
 ## Metrics (examples)
 
-`outbox_lag`, `failed_notifications`, `app_auth_login_total`, `app_branch_command_total`, `app_use_case_duration`, `app_outbox_publish_total`, `app_notification_consumer_total`.
+`outbox_lag`, `failed_notifications`, `app_auth_login_total`, `app_branch_command_total`, `app_iam_admin_action_total`, `app_use_case_duration`, `app_outbox_publish_total`, `app_notification_consumer_total`.
 
 ## Alerting
 

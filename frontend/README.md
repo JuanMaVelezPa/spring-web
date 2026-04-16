@@ -56,7 +56,7 @@ npm ci
 npm start
 ```
 
-Open `http://localhost:4200/`. Default credentials (if you copied [`.env.example`](../.env.example) to `.env` at repo root): **username** `admin`, **password** `Admin_ChangeMe_2026!`. If you changed `APP_USER` / `APP_PASSWORD`, use those values instead ([root README](../README.md#ui-login-default-values)).
+Open `http://localhost:4200/`. Default credentials (if you copied [`.env.example`](../.env.example) to `.env` at repo root): **username** `admin@example.com`, **password** `Admin_ChangeMe_2026!`. If you changed `APP_SUPER_ADMIN_EMAIL` / `APP_SUPER_ADMIN_PASSWORD`, use those values instead ([root README](../README.md#ui-login-default-values)).
 
 ## Build
 
@@ -101,7 +101,7 @@ npm run test:e2e:smoke
 
 Defaults:
 - `E2E_BASE_URL=http://localhost:8080`
-- `E2E_USER=admin`
+- `E2E_USER=admin@example.com`
 - `E2E_PASSWORD=Admin_ChangeMe_2026!`
 
 The smoke verifies: login -> branches list -> create branch -> back to list with created code visible.

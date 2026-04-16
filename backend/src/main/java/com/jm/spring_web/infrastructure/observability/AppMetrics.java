@@ -45,6 +45,10 @@ public class AppMetrics {
         counter("app_notification_consumer_total", outcome).increment();
     }
 
+    public void incrementIamAdminAction(String action, String outcome) {
+        counter("app_iam_admin_action_total", outcome, "action", action).increment();
+    }
+
     private Counter counter(String metricName, String outcome) {
         return Counter.builder(metricName)
                 .description("Business counter for application flows")

@@ -61,6 +61,7 @@ public class SecurityConfig {
                         auth.requestMatchers("/actuator/metrics/**", "/actuator/prometheus").permitAll();
                     }
 
+                    auth.requestMatchers("/api/v1/admin/**").hasRole("SUPER_ADMIN");
                     auth.requestMatchers("/api/v1/branches/**").hasAnyRole("SUPER_ADMIN", "APP_ADMIN");
                     auth.anyRequest().authenticated();
                 })

@@ -28,7 +28,7 @@ From the **repository root** (where `docker-compose.yml` lives):
 
 ```bash
 cp .env.example .env
-# Edit .env: JWT_SECRET and APP_PASSWORD are required (see .env.example).
+# Edit .env: JWT_SECRET and APP_SUPER_ADMIN_PASSWORD are required (see .env.example).
 # Optional (local Alertmanager): see [backend/README.md](backend/README.md).
 
 docker compose up -d --build
@@ -39,18 +39,27 @@ docker compose up -d --build
 - **Grafana:** http://localhost:3000 · **Prometheus:** http://localhost:9090  
 - Stop: `docker compose down` · Logs: `docker compose logs -f web app`
 
+### Database URLs (avoid 5432/5433 confusion)
+
+- **When the API runs in Docker Compose** (service `app`): use the Compose hostname  
+  - `DB_URL=jdbc:postgresql://postgres:5432/companydb` (this is the default in `.env.example`)
+- **When the API runs on your machine** (Gradle / debugger) but you still use the Compose Postgres container: use the host-mapped port  
+  - `DB_URL=jdbc:postgresql://localhost:5433/companydb` (Compose maps `5433 -> 5432`)
+
 ### UI login (default values)
 
 After `cp .env.example .env`, the API creates the application user defined in `.env`. **Defaults** (from `.env.example`):
 
 | | |
 |--|--|
-| **Username** | `admin` |
+| **Username** | `admin@example.com` |
 | **Password** | `Admin_ChangeMe_2026!` |
 
-If you changed `APP_USER` or `APP_PASSWORD` in your `.env`, use those values in the login form.
+If you changed `APP_SUPER_ADMIN_EMAIL` or `APP_SUPER_ADMIN_PASSWORD` in your `.env`, use those values in the login form.
 
-**If login responds `422 Unprocessable Content`:** the response body is typically *Invalid credentials* — the API is rejecting username/password. Check that `.env` has no quotes around `APP_PASSWORD`, no trailing spaces, and **restart the `app` container** (or Spring process) after changing it: the in-memory user is created at startup with the then-current value.
+**If login responds `422 Unprocessable Content`:** the response body is typically *Invalid credentials* — the API is rejecting username/password. Check that `.env` has no quotes around `APP_SUPER_ADMIN_PASSWORD`, no trailing spaces, and **restart the `app` container** after changing it (the SUPER_ADMIN is seeded at startup if missing).
+
+Nota: para el login usa `APP_SUPER_ADMIN_EMAIL` / `APP_SUPER_ADMIN_PASSWORD` (no `APP_USER` / `APP_PASSWORD`).
 
 Variables, Alertmanager, and production-like compose: [backend/README.md](backend/README.md).
 

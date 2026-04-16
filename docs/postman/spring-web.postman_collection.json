@@ -15,7 +15,7 @@
           "  pm.collectionVariables.set('baseUrl', 'http://localhost:8080');",
           "}",
           "if (!pm.collectionVariables.get('username')) {",
-          "  pm.collectionVariables.set('username', 'admin');",
+          "  pm.collectionVariables.set('username', 'admin@example.com');",
           "}",
           "if (!pm.collectionVariables.get('password')) {",
           "  pm.collectionVariables.set('password', 'Admin_ChangeMe_2026!');",
@@ -70,6 +70,68 @@
           }
         }
       ]
+    },
+    {
+      "name": "1.1 Admin - Roles (SUPER_ADMIN)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/roles",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "roles"
+          ]
+        }
+      }
+    },
+    {
+      "name": "1.2 Admin - Users - List (SUPER_ADMIN)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/users?page=0&size=20&sort=email,asc",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "users"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "20"
+            },
+            {
+              "key": "sort",
+              "value": "email,asc"
+            }
+          ]
+        }
+      }
     },
     {
       "name": "2. Branches - Create",
@@ -458,6 +520,29 @@
             "actuator",
             "metrics",
             "app_notification_consumer_total"
+          ]
+        }
+      }
+    },
+    {
+      "name": "15.1 Actuator - app_iam_admin_action_total",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/actuator/metrics/app_iam_admin_action_total",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "actuator",
+            "metrics",
+            "app_iam_admin_action_total"
           ]
         }
       }

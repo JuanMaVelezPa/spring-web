@@ -5,7 +5,7 @@ test('smoke: login -> list -> create branch', async ({ page }) => {
 
   await page.goto('/login');
 
-  await page.getByTestId('login-username').fill(process.env.E2E_USER ?? 'admin');
+  await page.getByTestId('login-username').fill(process.env.E2E_USER ?? 'admin@example.com');
   await page.getByTestId('login-password').fill(process.env.E2E_PASSWORD ?? 'Admin_ChangeMe_2026!');
   await page.getByTestId('login-submit').click();
 
