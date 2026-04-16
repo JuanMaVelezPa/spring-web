@@ -2,6 +2,8 @@ package com.jm.spring_web.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jm.spring_web.infrastructure.security.JwtProperties;
+import com.jm.spring_web.infrastructure.security.JwtTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -54,8 +57,8 @@ class BranchFlowIntegrationTest {
         registry.add("spring.datasource.password", POSTGRES::getPassword);
         registry.add("security.jwt.secret", () -> "test-secret-test-secret-test-secret-123");
         registry.add("security.jwt.expiration-seconds", () -> "3600");
-        registry.add("security.default-user.username", () -> "admin");
-        registry.add("security.default-user.password", () -> "admin123");
+        // Keep this test focused on the branch flow (not IAM bootstrap).
+        registry.add("app.security.bootstrap.enabled", () -> "false");
     }
 
     @BeforeEach
@@ -84,18 +87,8 @@ class BranchFlowIntegrationTest {
                     processed_at TIMESTAMP NULL
                 )
                 """);
-        Boolean branchTableExists = jdbcTemplate.queryForObject(
-                "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'branch')",
-                Boolean.class);
-        if (Boolean.TRUE.equals(branchTableExists)) {
-            jdbcTemplate.execute("DELETE FROM branch");
-        }
-        Boolean outboxTableExists = jdbcTemplate.queryForObject(
-                "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'outbox_event')",
-                Boolean.class);
-        if (Boolean.TRUE.equals(outboxTableExists)) {
-            jdbcTemplate.execute("DELETE FROM outbox_event");
-        }
+        jdbcTemplate.execute("DELETE FROM branch");
+        jdbcTemplate.execute("DELETE FROM outbox_event");
     }
 
     @Test
@@ -173,17 +166,11 @@ class BranchFlowIntegrationTest {
     }
 
     private String loginAndGetToken() throws Exception {
-        MvcResult loginResult = mockMvc.perform(post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "username":"admin",
-                                  "password":"admin123"
-                                }
-                                """))
-                .andExpect(status().isOk())
-                .andReturn();
-        JsonNode loginJson = objectMapper.readTree(loginResult.getResponse().getContentAsString());
-        return loginJson.get("token").asText();
+        JwtTokenService jwt = new JwtTokenService(new JwtProperties(
+                "test-secret-test-secret-test-secret-123",
+                3600,
+                7200,
+                "REFRESH_TOKEN"));
+        return jwt.issueAccessToken(UUID.fromString("00000000-0000-0000-0000-000000000010").toString(), List.of("APP_ADMIN"));
     }
 }

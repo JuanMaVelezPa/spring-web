@@ -15,11 +15,9 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -63,7 +61,7 @@ public class SecurityConfig {
                         auth.requestMatchers("/actuator/metrics/**", "/actuator/prometheus").permitAll();
                     }
 
-                    auth.requestMatchers("/api/v1/branches/**").hasRole("ADMIN");
+                    auth.requestMatchers("/api/v1/branches/**").hasAnyRole("SUPER_ADMIN", "APP_ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -91,18 +89,6 @@ public class SecurityConfig {
                 "Forbidden",
                 "You do not have permission to access this resource",
                 objectMapper);
-    }
-
-    @Bean
-    UserDetailsService userDetailsService(
-            @Value("${security.default-user.username}") String username,
-            @Value("${security.default-user.password}") String password,
-            PasswordEncoder passwordEncoder) {
-        return new InMemoryUserDetailsManager(
-                User.withUsername(username)
-                        .password(passwordEncoder.encode(password))
-                        .roles("ADMIN")
-                        .build());
     }
 
     @Bean

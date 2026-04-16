@@ -9,6 +9,7 @@ import com.jm.spring_web.application.branch.usecase.UpdateBranchUseCase;
 import com.jm.spring_web.application.notification.port.OutboxEventRepositoryPort;
 import com.jm.spring_web.application.security.port.TokenProviderPort;
 import com.jm.spring_web.application.security.port.UserCredentialsPort;
+import com.jm.spring_web.application.security.port.UserDirectoryPort;
 import com.jm.spring_web.application.security.usecase.AuthenticateUserUseCase;
 import com.jm.spring_web.application.security.usecase.RefreshTokenUseCase;
 import org.springframework.context.annotation.Bean;
@@ -45,12 +46,15 @@ public class ApplicationUseCaseConfig {
     }
 
     @Bean
-    AuthenticateUserUseCase authenticateUserUseCase(UserCredentialsPort userCredentialsPort, TokenProviderPort tokenProviderPort) {
-        return new AuthenticateUserUseCase(userCredentialsPort, tokenProviderPort);
+    AuthenticateUserUseCase authenticateUserUseCase(
+            UserCredentialsPort userCredentialsPort,
+            TokenProviderPort tokenProviderPort,
+            UserDirectoryPort userDirectoryPort) {
+        return new AuthenticateUserUseCase(userCredentialsPort, tokenProviderPort, userDirectoryPort);
     }
 
     @Bean
-    RefreshTokenUseCase refreshTokenUseCase(TokenProviderPort tokenProviderPort) {
-        return new RefreshTokenUseCase(tokenProviderPort);
+    RefreshTokenUseCase refreshTokenUseCase(TokenProviderPort tokenProviderPort, UserDirectoryPort userDirectoryPort) {
+        return new RefreshTokenUseCase(tokenProviderPort, userDirectoryPort);
     }
 }
